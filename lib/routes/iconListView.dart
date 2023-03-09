@@ -33,13 +33,12 @@ class IconListView extends StatelessWidget {
   Widget build(BuildContext context) {
     //if (data['gradeFilter']) {}
     Size size = MediaQuery.of(context).size;
-    print('size = $size');
     return Scaffold(
         appBar: MyAppBar(),
         resizeToAvoidBottomInset: false,
         body: SingleChildScrollView(child: Center(child:
             Consumer<GlobalController>(builder: (context, controller, child) {
-          String grade = controller.user['grade'] ?? 'g4';
+          String grade = controller.user['userPref']?['grade'] ?? 'g4';
           if (grade == 'all') {
             grade = 'g4';
           }
@@ -88,8 +87,8 @@ class IconListView extends StatelessWidget {
                                 // After selecting the desired option,it will
                                 // change button value to selected value
                                 onChanged: (newValue) {
-                                  print('onChanged $newValue');
-                                  controller.updateUser(newValue.toString());
+                                  controller.updateUserPref(
+                                      'grade', newValue.toString());
                                 },
                               ))
                       ],
@@ -105,7 +104,6 @@ class IconListView extends StatelessWidget {
                             child: Center(
                                 child: InkWell(
                                     onTap: () {
-                                      print('item id = ${item["id"]}');
                                       Navigator.pushNamed(context, '/playlist',
                                           arguments: RootID(item["id"]));
                                     },

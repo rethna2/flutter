@@ -43,13 +43,17 @@ class _AllPlaylistsViewState extends State<AllPlaylistsView> {
       readJson(args.id);
     }
     if (_items.length == 0) {
-      return Text('Loading...');
+      return Scaffold(
+          appBar: MyAppBar(),
+          body: const Padding(
+              padding: EdgeInsets.all(15), child: Text('Loading...')));
     }
+
     return Scaffold(
         appBar: MyAppBar(),
         body: SingleChildScrollView(child:
             Consumer<GlobalController>(builder: (context, controller, child) {
-          String grade = controller.user['grade'] ?? 'all';
+          String grade = controller.user['userPref']?['grade'] ?? 'all';
           List filtered = _items;
           if (searchTxt.length >= 3) {
             filtered = _items.where((item) {
@@ -63,7 +67,7 @@ class _AllPlaylistsViewState extends State<AllPlaylistsView> {
                 .where((item) => item['grade'].toString().indexOf(grade) != -1)
                 .toList();
           }
-
+          Map res = controller.responses;
           return Container(
               child: Column(children: [
             Container(
@@ -88,7 +92,8 @@ class _AllPlaylistsViewState extends State<AllPlaylistsView> {
                           // After selecting the desired option,it will
                           // change button value to selected value
                           onChanged: (newValue) {
-                            controller.updateUser(newValue.toString());
+                            controller.updateUserPref(
+                                'grade', newValue.toString());
                             setState(() {
                               searchTxt = '';
                             });
@@ -157,6 +162,7 @@ class _AllPlaylistsViewState extends State<AllPlaylistsView> {
                                           item["label"],
                                         ),
                                       ))),
+                              Text(_getScore(res, item["id"]))
                             ]),
                           ]),
                           // padding:
@@ -172,4 +178,34 @@ class _AllPlaylistsViewState extends State<AllPlaylistsView> {
           ]));
         })));
   }
+}
+
+String _getScore(res, id) {
+  if (res[id] == null) {
+    return '';
+  }
+  Map map = res[id];
+  double score = 0;
+  double count = 0;
+
+  map.forEach((k, v) {
+    if (v.containsKey('score')) {
+      score += v['score'];
+      count += 1;
+    }
+  });
+  if (count != 0) {
+    return '${(score / count).round()} %';
+  }
+  return '100 %';
+  /*
+  double score = 0;
+  double count = 0;
+  res[id].asMap().forEach((i, value) {
+    score += 1;
+    print('score =  ${res[id]['score']}');
+  });
+  
+  return '${score}';
+  */
 }

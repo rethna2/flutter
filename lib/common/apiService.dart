@@ -12,7 +12,6 @@ class ApiService {
         'Authorization': token,
         'Content-Type': 'application/json'
       });
-      print('statusCode = ${res.statusCode}');
       if (res.statusCode.toString()[0] == '2') {
         Map data = jsonDecode(res.body);
         int subDate = getPaymentMap(data['profile']);

@@ -18,7 +18,6 @@ class Button extends StatelessWidget {
         primary: Color(0xff4fa7f7),
       ),
       onPressed: () {
-        print('onPressed label $label');
         onClick();
       },
       child: Text(label, style: TextStyle(fontSize: 16, color: Colors.white)),

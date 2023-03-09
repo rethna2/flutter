@@ -147,10 +147,73 @@ void paintSvgData(Path path, List list) {
               list[i]['ctx'], list[i]['cty'], list[i]['x'], list[i]['y']);
         }
         break;
+      case 'H':
+        {
+          path.lineTo(list[i]['val'], getPrevY(list, i));
+        }
+        break;
+      case 'V':
+        {
+          path.lineTo(getPrevX(list, i), list[i]['val']);
+        }
+        break;
+      case 'a':
+      case 'A':
+        {
+          double degToRad(num deg) => deg * (Math.pi / 180.0);
+          path.arcTo(Rect.fromLTWH(0, 0, list[i]['rx'], list[i]['ry']),
+              degToRad(0), degToRad(90), true);
+          /*
+               'type': a[0],
+        'rx': double.parse(a[1]),
+        'ry': double.parse(a[2]),
+        'rot': double.parse(a[3]),
+        'largeArc': double.parse(a[4]),
+        'otherSide': double.parse(a[5]),
+        'x': double.parse(a[6]),
+        'y': double.parse(a[7])
+
+          path.arcTo(
+              Rect.fromLTWH(size.width / 2, size.height / 2, size.width / 4,
+                  size.height / 4),
+              degToRad(0),
+              degToRad(90),
+              true);
+              */
+        }
+        break;
+      case 'Z':
+      case 'z':
+        {
+          path.close();
+        }
+        break;
       default:
         break;
     }
   }
+}
+
+double getPrevX(list, pos) {
+  for (int i = pos - 1; i >= 0; i--) {
+    if (list[i]['x'] != null) {
+      return list[i]['x'];
+    } else if (list[i]['type'] == 'H') {
+      return list[i]['val'];
+    }
+  }
+  return 0;
+}
+
+double getPrevY(list, pos) {
+  for (int i = pos - 1; i >= 0; i--) {
+    if (list[i]['y'] != null) {
+      return list[i]['y'];
+    } else if (list[i]['type'] == 'V') {
+      return list[i]['val'];
+    }
+  }
+  return 0;
 }
 
 List getRealLengths(data, Size size) {
@@ -170,7 +233,6 @@ List getRealLengths(data, Size size) {
         pathList.add(pm[0].length);
       } catch (e) {
         print('svgUtils Error : $e');
-        print('paths[i] = ${paths[i]}');
       }
     }
     list.add(pathList);
@@ -184,12 +246,37 @@ num getScale(canvasData, Size size) {
   if (canvasData['width'] != null) {
     lineWidth = Math.max(lineWidth, canvasData['width']);
   }
-  print('calculatedScale = ${(size.width - 50) / lineWidth}');
   List<num> options = [
     (size.width - 50) / lineWidth,
     2,
     (size.height - 80) / 400
   ];
-  print('getScale = $options');
   return options.reduce(Math.min);
+}
+
+class SVGImg extends CustomPainter {
+  SVGImg({required this.svgList});
+  List svgList;
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = Color(0xff1b75b7)
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = 6.0;
+    Path path = new Path();
+    try {
+      for (int i = 0; i < svgList.length; i++) {
+        List data = dataToObj(svgList[i]);
+        paintSvgData(path, data);
+      }
+      canvas.drawPath(path, paint);
+    } catch (e) {
+      print('Error : $e');
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

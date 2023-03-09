@@ -61,9 +61,6 @@ class _Slides2State extends State<Slides2> {
 
   void playaudio() async {
     num offset = index == 0 ? 0 : widget.data['audioOffsets'][index - 1];
-    print('offset = $offset');
-    print(
-        'playaudio $audioOffset , $audioWidth ,  $offset , ${audioOffset + offset} , ${audioOffset + offset + audioWidth}');
     try {
       await player.setClip(
           start: Duration(milliseconds: (offset * 1000).round())); // + ),

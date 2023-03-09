@@ -1,5 +1,4 @@
 String? validateEmail(value) {
-  print('validateEmail $value');
   if (value == null || value.isEmpty) {
     return 'Email cannot be empty.';
   }
@@ -30,7 +29,7 @@ int getPaymentMap(Map data) {
   int lastSubDate = 0;
   if (data['list'] is List) {
     data['list'].forEach((item) => {
-          if ((lastSubDate ?? 0) < item['time']) {lastSubDate = item['time']}
+          if (lastSubDate < item['time']) {lastSubDate = item['time']}
         });
   } else {
     lastSubDate = data['date'] ?? 0;

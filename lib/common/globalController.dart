@@ -17,9 +17,10 @@ class RootID {
 
 class GlobalController with ChangeNotifier {
   GlobalController(this._globalService, context) {
-    print('GlobalController');
     responses = {};
-    user = {'grade': 'all'};
+    user = {
+      'userPref': {'grade': 'all', 'clapSound': true}
+    };
     loadSettings();
   }
 
@@ -62,8 +63,7 @@ class GlobalController with ChangeNotifier {
     await _globalService.updateThemeMode(newThemeMode);
   }
 
-  Future<void> updateResponse(response, playlistId, activityId) async {
-    print('updateResponse = ${playlistId}, ${activityId}');
+  Future<void> updateResponse(response, playlistId, activityId, score) async {
     responses = {...responses};
     if (!responses.containsKey(playlistId)) {
       responses[playlistId] = {};
@@ -72,11 +72,16 @@ class GlobalController with ChangeNotifier {
       return;
     }
     var obj = {};
+    /*
     if (response is List) {
       obj['score'] =
           response.where((item) => item['right'] == true).toList().length /
               response.length;
       obj['score'] = (obj['score'] * 100).round();
+    }
+    */
+    if (score != null) {
+      obj['score'] = score;
     }
     obj['response'] = response;
     if (activityId.indexOf('_') == -1) {
@@ -90,11 +95,8 @@ class GlobalController with ChangeNotifier {
       }
       responses[playlistId][actId][position] = obj;
     }
-
-    print('playlistId = ${playlistId}, ${activityId}');
     try {
       bool success = await writeFile(json.encode(responses));
-      print('write file: ${success}');
     } catch (e) {
       print('Error!! write failed : $e');
     }
@@ -133,16 +135,22 @@ class GlobalController with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateUser(String grade) async {
-    user = {...user, 'grade': grade};
+  Future<void> updateUserPref(String key, dynamic value) async {
+    Map userPref = {};
+    if (user['userPref'] != null) {
+      userPref = user['userPref'];
+    }
+    userPref = {
+      ...userPref,
+    };
+    userPref[key] = value;
+    user = {...user, 'userPref': userPref};
     await writeFile(json.encode(user), 'user');
     notifyListeners();
   }
 
   Future<String> login(String email, String password) async {
-    print("controller login $email, $password");
     Map response = await CognitoService.login(email, password);
-    print("controller loginDone $response");
     if (response['error']) {
       return response['message'];
     }
@@ -210,7 +218,6 @@ class GlobalController with ChangeNotifier {
     // 28 * 24 * 60 * 60 * 1000 - 28 days;
     if (user['tokenDate'] + 2419200000 < now) {
       Map res = await CognitoService.updateSession();
-      print('updateSession res = ${res['token']}');
       if (res['error']) {
         await logout();
         return false;
@@ -237,7 +244,6 @@ class GlobalController with ChangeNotifier {
   }
 
   Future<void> testApi() async {
-    print('testApi');
     await updateSession();
   }
 }

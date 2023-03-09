@@ -25,14 +25,11 @@ class _SlidesState extends State<Slides> with TickerProviderStateMixin {
         // .map((e) => ({'img': e[0].trim(), 'text': e[1].trim()})))
         .toList();
     // list = list.sublist(0, 8);
-    print('list = $list');
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    print('slideState ${widget.data}');
-    print('list.length = ${list.length}');
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       body: SafeArea(
@@ -123,7 +120,6 @@ class _CoolSwiperState extends State<CoolSwiper>
 
   void _swapLast() async {
     Widget last = stackChildren[stackChildren.length - 1];
-    print('On Move');
     widget.activityCallback({
       'type': 'progress',
       'progress': ((index + 1) / stackChildren.length * 100).ceil()
@@ -140,7 +136,6 @@ class _CoolSwiperState extends State<CoolSwiper>
   }
 
   void playaudio() async {
-    print('playaudio');
     await player.setClip(
         start: Duration(seconds: widget.audioOffset + (index) * 2),
         end: Duration(seconds: widget.audioOffset + (index) * 2 + 2));
@@ -152,14 +147,11 @@ class _CoolSwiperState extends State<CoolSwiper>
     super.initState();
     _cards = SwiperCard.listFromWidgets(widget.children);
     stackChildren = _stackChildren;
-    print('_cards.length = ${_cards.length}');
     backgroundCardsAnimationController = AnimationController(
       vsync: this,
       duration: Constants.backgroundCardsAnimationDuration,
     );
     // String audio = widget.audio.replaceAll('.mp3', '.aac');
-
-    print('initState audio = ${widget.audio}');
     player = AudioPlayer();
     player.setAsset('assets/sound/${widget.audio}');
     playaudio();
@@ -226,7 +218,6 @@ class _CoolSwiperState extends State<CoolSwiper>
   }
 
   Widget _buildBackgroundCardsStack() {
-    print('_cards.length = ${_cards.length}');
     return Stack(
       children: List.generate(
         _cards.length - 1,
@@ -553,7 +544,6 @@ class CardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('CardContent : ${data}');
     return Container(
       height: Constants.cardHeight,
       padding: const EdgeInsets.all(30),

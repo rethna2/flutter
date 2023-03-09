@@ -47,20 +47,20 @@ void main() async {
                 case '/':
                   return IconListView(data: data as Map);
                 case '/playlist':
-                  return new PlaylistView();
+                  return const PlaylistView();
                 case '/activity':
-                  return ActivityView();
+                  return const ActivityView();
                 case '/test':
-                  return NotificationTest();
+                  return const NotificationTest();
                 case '/allPlaylists':
-                  return AllPlaylistsView();
+                  return const AllPlaylistsView();
                 case '/about':
-                  return AboutUs();
+                  return const AboutUs();
                 case '/asktosubscribe':
                   return AskToSubscribe();
                 case '/member':
                 default:
-                  return MemberPage();
+                  return const MemberPage();
               }
             },
           );

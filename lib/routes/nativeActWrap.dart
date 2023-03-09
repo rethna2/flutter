@@ -19,8 +19,8 @@ Widget getActivity(Map data, Size size, Function activityCallback) {
       return PlaceValueAbacus(
           data: data['data'], activityCallback: activityCallback);
     case 'numberLine':
-      print('nativeActWrap: ${data['data']}');
-      return NumberLine(data: data['data'], activityCallback: activityCallback);
+      return NumberLine(
+          data: data['data'], size: size, activityCallback: activityCallback);
     case 'tracing':
     default:
       return Tracing(

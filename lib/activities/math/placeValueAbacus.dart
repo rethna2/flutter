@@ -45,14 +45,12 @@ class _PlaceValueAbacusState extends State<PlaceValueAbacus> {
     for (int i = 0; i < str.length - 1; i++) {
       no = no * 10;
     }
-    print('initState $no');
     while (list.length < 10) {
       num number = utils.getFormatedRandom(str);
       if (list.indexOf(number) == -1) {
         list.add(number);
       }
     }
-    print('initState list: $list');
     colors = [...allColors];
     colors.sort((a, b) => random.nextDouble() > 0.5 ? -1 : 1);
     super.initState();
@@ -176,7 +174,6 @@ class Painter extends CustomPainter {
   List colors;
   @override
   void paint(Canvas canvas, Size size) {
-    print('value = $value');
     Paint paint = Paint()
       ..color = Colors.green
       ..style = PaintingStyle.stroke

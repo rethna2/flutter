@@ -23,7 +23,6 @@ class _SubscribeBtnState extends State<SubscribeBtn> {
   Razorpay _razorpay = Razorpay();
   void initState() {
     super.initState();
-    print("_SubscribeBtnState");
   }
 
   @override
@@ -41,7 +40,6 @@ class _SubscribeBtnState extends State<SubscribeBtn> {
       isWaiting = true;
     });
     final paymentInfo = await getPaymentInfo();
-    print('paymentInfo = $paymentInfo');
     if (paymentInfo['error']) {
       return;
     }
@@ -53,7 +51,6 @@ class _SubscribeBtnState extends State<SubscribeBtn> {
       });
       return;
     }
-    print('email = ${user['profile']['id']}');
     String email = user['profile']['id'];
     Map<String, dynamic> options = {
       'key': 'rzp_live_OVBWBRMiJoIxne',
@@ -69,11 +66,9 @@ class _SubscribeBtnState extends State<SubscribeBtn> {
       'description': 'One year subscription',
       'readonly': {'email': 1},
     };
-    print('options = $options');
 
     void _handlePaymentSuccess(PaymentSuccessResponse response) async {
       // Do something when payment succeeds
-      print("_handlePaymentSuccess ");
       setState(() {
         isWaiting = false;
         success = true;
@@ -89,11 +84,6 @@ class _SubscribeBtnState extends State<SubscribeBtn> {
         errorMsg = res['error']!['description'];
         isWaiting = false;
       });
-      print('response.message = ${response.message}');
-      print('response.code = ${response.code}');
-      print('response.message = ${response.message}');
-
-      print("_handlePaymentError = ${response.toString()}");
     }
 
     void _handleExternalWallet(ExternalWalletResponse response) {

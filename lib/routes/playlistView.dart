@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:collection/collection.dart';
 import 'dart:convert';
 import 'activityView.dart';
+import 'comps/MyAppBar.dart';
 
 /*
 class PlaylistView extends StatelessWidget {
@@ -45,7 +46,6 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
     final String response =
         await rootBundle.loadString('assets/playlists/${args.id}.pschool');
     final data = await json.decode(response);
-    print('args = ${args.lastAct}');
     try {
       if (args.lastAct != null) {
         String lastAct = args.lastAct ?? '';
@@ -86,15 +86,18 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
   Widget build(BuildContext context) {
     if (_items.length == 0) {
       final args = ModalRoute.of(context)!.settings.arguments as RootID;
-      print('PlaylistView args ${args}');
       readJson(args);
     }
-    print('build iconListView ${_items.length}');
     if (_items.length == 0) {
-      return Text('Loading...');
+      return Scaffold(
+          appBar: MyAppBar(title: _data['label']),
+          body: const Padding(
+              padding: EdgeInsets.all(15), child: Text('Loading...')));
     }
+
     return Scaffold(
-        appBar: AppBar(
+        appBar: MyAppBar(title: _data['label']),
+        /*AppBar(
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),
                 onPressed: () => Navigator.pop(context)),
@@ -103,7 +106,7 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
                     decoration: TextDecoration.underline,
                     decorationStyle: TextDecorationStyle.double,
                     fontSize: 25)),
-            actions: []),
+            actions: []),*/
         body: SingleChildScrollView(child: Container(child:
             Consumer<GlobalController>(builder: (context, controller, child) {
           final responses = controller.responses[_data['id']] ?? {};
@@ -111,9 +114,6 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
           return Column(
               children: _items.mapIndexed((i, item) {
             var res = responses[_items[i]['id']];
-            if (res != null) {
-              print('Rethna = ${_items[i]['id']} = $res');
-            }
             final isList = _items[i]['data'][0] != null;
             return Container(
               padding: const EdgeInsets.all(10),
@@ -155,6 +155,8 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
                         Map data = {...payload['data'], ...refData};
                         payload = {...payload, 'data': data};
                       }
+                      //pushNamed is changed to popAndPushNamed
+
                       Navigator.pushNamed(context, '/activity',
                           arguments: ActivityPageArgs(
                               payload, _data["id"], _items[i]['id']));
@@ -164,7 +166,6 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
                   if (res != null)
                     GestureDetector(
                         onTap: () {
-                          print('On Clear: ${_data['id']}, ${_items[i]['id']}');
                           controller.clearActivity(
                               _data['id'], _items[i]['id']);
                         },
@@ -209,7 +210,6 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
 
   Widget getActBtn({item, res, pos, playlistId, paidUser}) {
     bool isLocked = false;
-    print('paidUser $paidUser');
     if (!paidUser) {
       //isLocked = (item['appLockAfter'] ?? item['lockAfter'] ?? 100) < pos;
       isLocked = pos >= (item['data'].toList().length / 2);

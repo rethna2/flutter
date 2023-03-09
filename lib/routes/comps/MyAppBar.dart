@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../common/globalController.dart';
 
 class MyAppBar extends StatelessWidget with PreferredSizeWidget {
-  MyAppBar({Key? key, String? title}) : super(key: key);
+  MyAppBar({Key? key, this.title}) : super(key: key);
   String? title;
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class MyAppBar extends StatelessWidget with PreferredSizeWidget {
             },
             child: Text(title ?? 'PSchool Math ',
                 style:
-                    GoogleFonts.girassol(textStyle: TextStyle(fontSize: 30)))),
+                    GoogleFonts.girassol(textStyle: TextStyle(fontSize: 24)))),
         actions: [_MainMenu()]);
   }
 
@@ -50,7 +50,6 @@ class _MainMenu extends StatelessWidget {
     */
     return PopupMenuButton<String>(
       onSelected: (item) {
-        print('Main Btn $item');
         if (item == 'Home Page') {
           Navigator.pushNamed(
             context,

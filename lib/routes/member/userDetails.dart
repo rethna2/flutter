@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pschool_math/routes/comps/core.dart';
+import './settings.dart';
 import '../../common/globalController.dart';
 import '../../utils/utils.dart';
 import '../comps/subscribeBtn.dart';
@@ -94,6 +95,7 @@ class UserDetails extends StatelessWidget {
                     style: TextStyle(color: Colors.white)),
               ),
               SizedBox(height: 20),
+              Settings(),
               TextButton(
                 style: ButtonStyle(
                   foregroundColor:

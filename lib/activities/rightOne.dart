@@ -2,6 +2,7 @@ import 'dart:math' as Math;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import '../utils/dataUtils.dart' as utils;
+import '../utils/svgUtils.dart';
 
 class RightOne extends StatefulWidget {
   const RightOne({Key? key, required this.data, required this.activityCallback})
@@ -40,9 +41,6 @@ class _RightOneState extends State<RightOne> with TickerProviderStateMixin {
     } else if (['words', 'image', 'letters'].contains(widget.data['type'])) {
       audioOffset = widget.data['audioOffset'] ?? 0;
       audioWidth = widget.data['audioWidth'] ?? 2;
-      print(
-          'audioOffset ${audioOffset.runtimeType}, ${audioWidth.runtimeType}');
-      print('widget.data ${widget.data}');
       list = utils.inputStrToArr(widget.data['text'] ?? widget.data['words']);
       list = list.asMap().entries.map((entry) {
         List words = [entry.value];
@@ -92,7 +90,6 @@ class _RightOneState extends State<RightOne> with TickerProviderStateMixin {
         }
       }).toList();
     }
-    print('list = ${list}');
     if (widget.data['audio'] != null) {
       player = AudioPlayer();
       String audio = widget.data['audio']; //.replaceAll('.mp3', '.aac');
@@ -121,9 +118,11 @@ class _RightOneState extends State<RightOne> with TickerProviderStateMixin {
   }
 
   void playaudio() async {
+    if (player.processingState != ProcessingState.idle &&
+        player.processingState != ProcessingState.completed) {
+      return;
+    }
     int offset = list[index]['audio'];
-    print(
-        'playaudio $audioOffset , $audioWidth ,  $offset , ${audioOffset + offset} , ${audioOffset + offset + audioWidth}');
     try {
       await player.setClip(
           start: Duration(seconds: offset), // + ),
@@ -209,11 +208,20 @@ class _RightOneState extends State<RightOne> with TickerProviderStateMixin {
                     decoration: getBoxDecoration(words[ra[i]]),
                     child: Center(
                         child: isImage == true
-                            ? (Image.asset(
-                                'assets/stockimg/${words[ra[i]]}.jpg',
-                                width: 130,
-                                height: 130,
-                                fit: BoxFit.contain))
+                            ? (widget.data['imageType'] == 'svg'
+                                ? (Transform.scale(
+                                    scale: 130 / 310,
+                                    origin: const Offset(-65, -65),
+                                    child: CustomPaint(
+                                        //size: const Size(double.infinity, double.infinity),
+                                        size: const Size(310, 310),
+                                        painter:
+                                            SVGImg(svgList: [words[ra[i]]]))))
+                                : Image.asset(
+                                    'assets/stockimg/${words[ra[i]]}.jpg',
+                                    width: 130,
+                                    height: 130,
+                                    fit: BoxFit.contain))
                             : (Text(words[ra[i]],
                                 style: TextStyle(
                                     fontSize: widget.data['type'] == 'letters'
@@ -228,14 +236,16 @@ class _RightOneState extends State<RightOne> with TickerProviderStateMixin {
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('You have completed this activity.',
             style: TextStyle(fontStyle: FontStyle.italic, fontSize: 25)),
-        for (int i = 0; i < response.length; i++)
-          Container(
-              padding: const EdgeInsets.all(10),
-              child: Text(
-                '${i + 1}. ${response[i]['ans']}',
-                style: TextStyle(
-                    color: response[i]['right'] ? Colors.green : Colors.red),
-              )),
+        if (widget.data['type'] != 'image')
+          for (int i = 0; i < response.length; i++)
+            Container(
+                padding: const EdgeInsets.all(10),
+                child: Text(
+                  '${i + 1}. ${response[i]['ans']}',
+                  style: TextStyle(
+                      color: response[i]['right'] ? Colors.green : Colors.red),
+                )),
+        const SizedBox(height: 50),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -338,3 +348,5 @@ double delayedProgress(double animationValue, int i) =>
               (i / completedExercises.length))
           .clamp(0, 1)
           .toDouble();*/
+
+

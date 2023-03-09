@@ -10,6 +10,9 @@ import 'comps/MyAppBar.dart';
 import '../common/globalController.dart';
 import './playlistView.dart';
 import './nativeActWrap.dart';
+//import 'package:url_launcher/url_launcher_string.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:just_audio/just_audio.dart';
 
 class ActivityPageArgs {
   final Map data;
@@ -28,19 +31,38 @@ const nativeAct = [
   'slides',
   'slides2',
   'tracing',
-  /*'rightOne'*/
+  'rightOne',
   'placeValueAbacus',
-  'numberLine'
+  //'numberLine'
 ];
 
-int? _calcScore(response) {
-  if (response is List) {
-    num score =
-        response.where((item) => item['right'] == true).toList().length /
-            response.length;
-    return (score * 100).round();
+bool isNative(Map data) {
+  switch (data["type"]) {
+    case 'rightOne':
+      return data["data"]["audio"] == null ? false : true;
+    default:
+      return nativeAct.contains(data["type"]);
   }
-  return null;
+}
+
+int? _calcScore(response) {
+  try {
+    if (response is List) {
+      num score =
+          response.where((item) => item['right'] == true).toList().length /
+              response.length;
+      return (score * 100).round();
+    }
+
+    //if (response is Map) {
+    if (response['score'] != null) {
+      return response['score'];
+    }
+    //  }
+    return null;
+  } catch (e) {
+    return null;
+  }
 }
 
 class ActivityViewState extends State<ActivityView> {
@@ -49,15 +71,15 @@ class ActivityViewState extends State<ActivityView> {
   GlobalKey stickyKey = GlobalKey();
   int progress = 0;
   double width = 400;
+  late AudioPlayer player;
   late Map response;
   @override
   void initState() {
+    super.initState();
     _controllerCenter =
         ConfettiController(duration: const Duration(seconds: 5));
     readFile().then((str) {
-      print('Read File:::::::: ${str}');
       if (str == '') {
-        print('No file Present');
         this.response = {};
       } else {
         this.response = json.decode(str);
@@ -66,16 +88,15 @@ class ActivityViewState extends State<ActivityView> {
     // Enable virtual display.
     // if (Platform.isAndroid) WebViewPlus.platform = AndroidWebView();
     WidgetsBinding.instance.addPostFrameCallback((_) => findWidth(context));
-    super.initState();
+    player = AudioPlayer();
+    player.setAsset('assets/applause-8.mp3');
   }
 
   void findWidth(context) {
     final keyContext = stickyKey.currentContext;
-    print('findWidth~~ $keyContext');
     if (keyContext != null) {
       // widget is visible
       final box = keyContext.findRenderObject() as RenderBox;
-      print('box.size = ${box.size}');
       width = box.size.width;
     }
   }
@@ -83,6 +104,7 @@ class ActivityViewState extends State<ActivityView> {
   @override
   void dispose() {
     _controllerCenter.dispose();
+    player.pause();
     super.dispose();
   }
 
@@ -96,26 +118,38 @@ class ActivityViewState extends State<ActivityView> {
       int? score = _calcScore(payload['response']);
       if ((score ?? 0) >= 90) {
         _controllerCenter.play();
+        player.play();
       }
+      String activityId = args.activityId;
+      String playlistId = args.playlistId;
+      controller.updateResponse(
+          payload['response'], playlistId, activityId, score);
       setState(() {
         progress = 100;
       });
     } else if (payload['type'] == 'complete') {
+      // some activities does't have resultView
+      int? score = _calcScore(payload['response']);
+      if ((score ?? 0) >= 90) {
+        _controllerCenter.play();
+        player.play();
+      }
       String activityId = args.activityId;
       String playlistId = args.playlistId;
-      controller.updateResponse(payload['response'], playlistId, activityId);
-
-      // Navigator.of(context).pop();
-      /*
-      Navigator.pushNamed(context, '/playlist',
-          arguments:
-              RootID(playlistId, activityId, controller.user['paidUser']));
-              */
-      //TODO: The below code is needed for back to work properly. But presently giving loading error. Need to fix this later.
-
+      controller.updateResponse(
+          payload['response'], playlistId, activityId, score);
       Navigator.popAndPushNamed(context, '/playlist',
           arguments:
               RootID(playlistId, activityId, controller.user['paidUser']));
+    }
+  }
+
+  _launchURL(String url) async {
+    Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
     }
   }
 
@@ -142,10 +176,15 @@ class ActivityViewState extends State<ActivityView> {
                 ),
               ],
             ),
+            //debug
+            Align(
+                alignment: Alignment.topRight,
+                child: Text('${args.playlistId}/${args.activityId}',
+                    style: TextStyle(color: Colors.grey))),
             Consumer<GlobalController>(builder: (context, controller, child) {
               return Expanded(
                   child: Stack(children: [
-                nativeAct.indexOf(args.data["type"]) == -1
+                !isNative(args.data)
                     ? (WebViewPlus(
                         //initialUrl: 'https://flutter.dev',
                         initialUrl: 'webNextjs/acts/${args.data["type"]}.html',
@@ -156,21 +195,20 @@ class ActivityViewState extends State<ActivityView> {
                         },
                         onPageFinished: (value) {
                           var str = json.encode(args.data['data']);
-                          print('onPageFinished = ${args.data['data']}');
-                          print('onPageFinished = ${str}');
                           this
                               .webController
                               .runJavascript('window.receiveActData(${str})');
                         },
-                        onProgress: (int progress) {
-                          print('WebView is loading (progress : $progress%)');
+                        onProgress: (int progress) {},
+                        navigationDelegate: (NavigationRequest request) {
+                          _launchURL(request.url);
+                          return NavigationDecision.prevent;
                         },
                         gestureNavigationEnabled: true,
                         javascriptChannels: {
                           JavascriptChannel(
                               name: 'jsChannel',
                               onMessageReceived: (message) async {
-                                print('Javascript: "${message.message}"');
                                 var payload =
                                     json.decode(message.message) as Map;
 

@@ -47,7 +47,6 @@ class CognitoService {
   static Future<String> signup(email, password) async {
     try {
       var data = await userPool.signUp(email, password);
-      print('signup $data');
       return 'success';
     } on CognitoClientException catch (e) {
       return e.message ?? 'Signup Failed!';
@@ -60,7 +59,6 @@ class CognitoService {
     try {
       final cognitoUser = CognitoUser(email, userPool);
       var data = await cognitoUser.resendConfirmationCode();
-      print('resendConfirmationCode $data');
       return 'success';
     } on CognitoClientException catch (e) {
       return e.message ?? 'Signup Failed!';
@@ -71,10 +69,8 @@ class CognitoService {
 
   static Future<String> confirmRegistration(otp, email, password) async {
     try {
-      print('confirmRegistration $otp, $email, $password');
       final cognitoUser = CognitoUser(email, userPool);
       var data = await cognitoUser.confirmRegistration(otp);
-      print('confirmRegistration $data');
       await login(email, password);
       return 'success';
     } on CognitoClientException catch (e) {
@@ -86,7 +82,6 @@ class CognitoService {
 
   static Future<String> forgetPassword(email) async {
     try {
-      print('forgetPassword $email');
       final cognitoUser = CognitoUser(email, userPool);
       var data = await cognitoUser.forgotPassword();
       return 'success';
@@ -101,7 +96,6 @@ class CognitoService {
     try {
       final cognitoUser = CognitoUser(email, userPool);
       var data = await cognitoUser.confirmPassword(otp, password);
-      print('confirmRegistration $data');
       await login(email, password);
       return 'success';
     } on CognitoClientException catch (e) {

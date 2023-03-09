@@ -19,7 +19,7 @@ class NumInput extends StatelessWidget {
       r2 = '67890'.split('');
     } else {
       r1 = '123456'.split('');
-      r2 = decimal ? '7890.x'.split('') : '7890−x'.split('');
+      r2 = decimal ? '7890.x'.split('') : '7890.−x'.split('');
     }
 
     return Container(
@@ -31,7 +31,6 @@ class NumInput extends StatelessWidget {
               Expanded(
                   child: GestureDetector(
                       onTap: () {
-                        print('onTap $r1[i]');
                         onInput(r1[i]);
                       },
                       child: Container(
@@ -53,7 +52,6 @@ class NumInput extends StatelessWidget {
               Expanded(
                   child: GestureDetector(
                       onTap: () {
-                        print('onTap $r2[i]');
                         var key = r2[i];
                         if (key == '−') {
                           key = '-';
