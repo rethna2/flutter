@@ -63,9 +63,21 @@ class _AllPlaylistsViewState extends State<AllPlaylistsView> {
               return false;
             }).toList();
           } else if (grade != 'all') {
-            filtered = _items
-                .where((item) => item['grade'].toString().indexOf(grade) != -1)
-                .toList();
+            filtered = _items.where((item) {
+              List range =
+                  item['grade'].split('-').map((no) => int.parse(no)).toList();
+              bool b;
+              RegExp exp = RegExp(r'(\d+)');
+              RegExpMatch? matches = exp.firstMatch(grade);
+              var gradeNo = int.parse(matches?.group(0) ?? '0');
+              if (range.length == 1) {
+                b = range[0] == gradeNo;
+              } else {
+                b = range[0] <= gradeNo && range[1] >= gradeNo;
+              }
+              return b;
+              //return item['grade'].toString().indexOf(grade) != -1;
+            }).toList();
           }
           Map res = controller.responses;
           return Container(

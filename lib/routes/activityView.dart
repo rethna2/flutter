@@ -70,12 +70,14 @@ class ActivityViewState extends State<ActivityView> {
   late ConfettiController _controllerCenter;
   GlobalKey stickyKey = GlobalKey();
   int progress = 0;
+  bool _saved = false;
   double width = 400;
   late AudioPlayer player;
   late Map response;
   @override
   void initState() {
     super.initState();
+    print("activityView initState");
     _controllerCenter =
         ConfettiController(duration: const Duration(seconds: 5));
     readFile().then((str) {
@@ -120,27 +122,31 @@ class ActivityViewState extends State<ActivityView> {
         _controllerCenter.play();
         player.play();
       }
-      String activityId = args.activityId;
-      String playlistId = args.playlistId;
+      DatabaseHelper.instance.addResponse(
+          payload['response'], args.playlistId, args.activityId, score);
+      /*
       controller.updateResponse(
           payload['response'], playlistId, activityId, score);
+          */
+
       setState(() {
         progress = 100;
+        _saved = true;
       });
     } else if (payload['type'] == 'complete') {
       // some activities does't have resultView
-      int? score = _calcScore(payload['response']);
-      if ((score ?? 0) >= 90) {
-        _controllerCenter.play();
-        player.play();
+      if (!_saved) {
+        int? score = _calcScore(payload['response']);
+        if ((score ?? 0) >= 90) {
+          _controllerCenter.play();
+          player.play();
+        }
+        DatabaseHelper.instance.addResponse(
+            payload['response'], args.playlistId, args.activityId, score);
       }
-      String activityId = args.activityId;
-      String playlistId = args.playlistId;
-      controller.updateResponse(
-          payload['response'], playlistId, activityId, score);
       Navigator.popAndPushNamed(context, '/playlist',
-          arguments:
-              RootID(playlistId, activityId, controller.user['paidUser']));
+          arguments: RootID(
+              args.playlistId, args.activityId, controller.user['paidUser']));
     }
   }
 
@@ -157,97 +163,100 @@ class ActivityViewState extends State<ActivityView> {
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as ActivityPageArgs;
     Size size = MediaQuery.of(context).size;
+    print("activityView build");
     return Scaffold(
         appBar: MyAppBar(),
-        body: Column(
-          key: stickyKey,
-          children: [
-            Stack(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: 10,
-                  color: Colors.white,
-                ),
-                Container(
-                  width: this.progress * width / 100,
-                  height: 10,
-                  color: Colors.blue,
-                ),
-              ],
-            ),
-            //debug
-            Align(
-                alignment: Alignment.topRight,
-                child: Text('${args.playlistId}/${args.activityId}',
-                    style: TextStyle(color: Colors.grey))),
-            Consumer<GlobalController>(builder: (context, controller, child) {
-              return Expanded(
-                  child: Stack(children: [
-                !isNative(args.data)
-                    ? (WebViewPlus(
-                        //initialUrl: 'https://flutter.dev',
-                        initialUrl: 'webNextjs/acts/${args.data["type"]}.html',
-                        //initialUrl: 'webNextjs/audiotest.html',
-                        javascriptMode: JavascriptMode.unrestricted,
-                        onWebViewCreated: (controller) {
-                          this.webController = controller.webViewController;
-                        },
-                        onPageFinished: (value) {
-                          var str = json.encode(args.data['data']);
-                          this
-                              .webController
-                              .runJavascript('window.receiveActData(${str})');
-                        },
-                        onProgress: (int progress) {},
-                        navigationDelegate: (NavigationRequest request) {
-                          _launchURL(request.url);
-                          return NavigationDecision.prevent;
-                        },
-                        gestureNavigationEnabled: true,
-                        javascriptChannels: {
-                          JavascriptChannel(
-                              name: 'jsChannel',
-                              onMessageReceived: (message) async {
-                                var payload =
-                                    json.decode(message.message) as Map;
+        body: Column(key: stickyKey, children: [
+          Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                height: 10,
+                color: Colors.white,
+              ),
+              Container(
+                width: this.progress * width / 100,
+                height: 10,
+                color: Colors.blue,
+              ),
+            ],
+          ),
+          Align(
+              alignment: Alignment.topRight,
+              child: Text('${args.playlistId}/${args.activityId}',
+                  style: TextStyle(color: Colors.grey))),
+          Consumer<GlobalController>(builder: (context, controller, child) {
+            return Expanded(
+                child: Stack(fit: StackFit.expand, children: [
+              Container(
+                color: const Color(0xf6f6f8ff), //  Colors.blueAccent,
+              ),
+              !isNative(args.data)
+                  ? (WebViewPlus(
+                      //initialUrl: 'https://flutter.dev',
+                      initialUrl: 'webNextjs/acts/${args.data["type"]}.html',
+                      //initialUrl: 'webNextjs/audiotest.html',
+                      javascriptMode: JavascriptMode.unrestricted,
+                      onWebViewCreated: (controller) {
+                        this.webController = controller.webViewController;
+                      },
+                      onPageFinished: (value) async {
+                        print('value passed = ${args.data['data']}');
+                        var str = json.encode(args.data['data']);
+                        //await Future.delayed(const Duration(milliseconds: 200));
+                        this
+                            .webController
+                            .runJavascript('window.receiveActData(${str})');
+                      },
+                      onProgress: (int progress) {},
+                      navigationDelegate: (NavigationRequest request) {
+                        _launchURL(request.url);
+                        return NavigationDecision.prevent;
+                      },
+                      gestureNavigationEnabled: true,
+                      javascriptChannels: {
+                        JavascriptChannel(
+                            name: 'jsChannel',
+                            onMessageReceived: (message) async {
+                              var payload = json.decode(message.message) as Map;
 
-                                activityCallback(payload, controller);
-                                // await showDialog(context: context, builder: (context) => AlertDialog())
-                                //controller.webViewController.evaluateJavascript('ok()');
-                              })
-                        },
-                      ))
-                    : (Container(
-                        decoration: new BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface),
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(15),
-                        child: getActivity(args.data, size, (payload) {
-                          activityCallback(payload, controller);
-                        }))),
-                //ElevatedButton(onPressed: () {}, child: Text("Hello")),
-                Align(
-                    alignment: Alignment.topCenter,
-                    child: ConfettiWidget(
-                      confettiController: _controllerCenter,
-                      blastDirectionality: BlastDirectionality.explosive,
-                      particleDrag: 0.05,
-                      emissionFrequency: 0.05,
-                      numberOfParticles: 30,
-                      gravity: 0.5,
-                      shouldLoop: false,
-                      colors: const [
-                        Colors.green,
-                        Colors.blue,
-                        Colors.pink,
-                        Colors.orange,
-                        Colors.purple
-                      ], // manually specify the colors to be used
+                              activityCallback(payload, controller);
+                              // await showDialog(context: context, builder: (context) => AlertDialog())
+                              //controller.webViewController.evaluateJavascript('ok()');
+                            })
+                      },
                     ))
-              ]));
-            })
-          ],
-        ));
+                  : (Container(
+                      decoration: new BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface),
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(15),
+                      child: getActivity(args.data, size, (payload) {
+                        activityCallback(payload, controller);
+                      }))),
+              //ElevatedButton(onPressed: () {}, child: Text("Hello")),
+              Align(
+                  alignment: Alignment.topCenter,
+                  child: ConfettiWidget(
+                    confettiController: _controllerCenter,
+                    blastDirectionality: BlastDirectionality.explosive,
+                    particleDrag: 0.05,
+                    emissionFrequency: 0.05,
+                    numberOfParticles: 30,
+                    gravity: 0.5,
+                    shouldLoop: false,
+                    colors: const [
+                      Colors.green,
+                      Colors.blue,
+                      Colors.pink,
+                      Colors.orange,
+                      Colors.purple
+                    ], // manually specify the colors to be used
+                  )),
+            ]));
+          }),
+        ])
+        //debug
+        );
   }
 }

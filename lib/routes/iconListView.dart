@@ -39,12 +39,27 @@ class IconListView extends StatelessWidget {
         body: SingleChildScrollView(child: Center(child:
             Consumer<GlobalController>(builder: (context, controller, child) {
           String grade = controller.user['userPref']?['grade'] ?? 'g4';
-          if (grade == 'all') {
-            grade = 'g4';
-          }
+          List items;
+
+          items = data['list'].where((item) {
+            List range =
+                item['grade'].split('-').map((no) => int.parse(no)).toList();
+            bool b;
+            RegExp exp = RegExp(r'(\d+)');
+            RegExpMatch? matches = exp.firstMatch(grade);
+            var gradeNo = int.parse(matches?.group(0) ?? '0');
+            if (range.length == 1) {
+              b = range[0] == gradeNo;
+            } else {
+              b = range[0] <= gradeNo && range[1] >= gradeNo;
+            }
+            return b;
+            //return item['grade'].toString().indexOf(grade) != -1;
+          }).toList();
+          /*
           final List items = data['list']
               .where((item) => item['grade'].toString().indexOf(grade) != -1)
-              .toList();
+              .toList();*/
           return Container(
               padding: const EdgeInsets.all(10),
               width: double.infinity,

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 import 'routes/member/member.dart';
 
 import 'routes/iconListView.dart';
@@ -8,6 +13,7 @@ import 'routes/playlistView.dart';
 import 'routes/allPlaylistsView.dart';
 import 'routes/aboutUsMath.dart';
 import 'routes/askToSubscribe.dart';
+import 'routes/testPage.dart';
 
 import 'common/theme.dart';
 import 'common/globalController.dart';
@@ -22,13 +28,43 @@ import 'package:provider/provider.dart';
 
 //import 'routes/paint.dart';
 
-void main() async {
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'high_importance_channel', // id
+    'High Importance Notifications', // title
+    description:
+        'This channel is used for important notifications.', // description
+    importance: Importance.high,
+    playSound: true);
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('A bg message just showed up :  ${message.messageId}');
+}
+
+Future<void> main() async {
   /*
-  runApp(MaterialApp(
+  runApp(MaterialApp( 
       title: 'PSchool App',
       home: new Container(child: const Text("Dummy App"))));
  */
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
   final String showcase =
       await rootBundle.loadString('assets/playlists/maths-sc.pschool');
   final data = await json.decode(showcase);
@@ -43,6 +79,7 @@ void main() async {
           return MaterialPageRoute<void>(
             settings: routeSettings,
             builder: (BuildContext context) {
+              print('routeSettings.name = ${routeSettings.name}');
               switch (routeSettings.name) {
                 case '/':
                   return IconListView(data: data as Map);
@@ -56,6 +93,8 @@ void main() async {
                   return const AllPlaylistsView();
                 case '/about':
                   return const AboutUs();
+                case '/test2':
+                  return const TestPage();
                 case '/asktosubscribe':
                   return AskToSubscribe();
                 case '/member':
@@ -79,4 +118,49 @@ void main() async {
       })
       */
       ))));
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+    if (notification != null && android != null) {
+      flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              channelDescription: channel.description,
+              color: Colors.blue,
+              playSound: true,
+              icon: '@mipmap/launcher_icon',
+            ),
+          ));
+    }
+  });
+
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    print('A new onMessageOpenedApp event was published!');
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+    if (notification != null && android != null) {
+      /*
+        showDialog(
+            context: context,
+            builder: (_) {
+              return AlertDialog(
+                title: Text(notification.title!),
+                content: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [Text(notification.body!)],
+                  ),
+                ),
+              );
+            });
+
+            */
+    }
+  });
 }

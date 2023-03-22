@@ -33,8 +33,7 @@ migrate_working_dir/
 /build/
 
 # Rethna Added
-/assets/playlists/
-/assets/stockimg/
+/assets/
 /webNextjs/
 
 # Web related

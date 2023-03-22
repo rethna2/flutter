@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 import 'dart:convert';
 import 'activityView.dart';
 import 'comps/MyAppBar.dart';
+import '../utils/filesystem.dart';
 
 /*
 class PlaylistView extends StatelessWidget {
@@ -32,22 +33,39 @@ class PlaylistView extends StatefulWidget {
   _ReadPlaylistJsonState createState() => _ReadPlaylistJsonState();
 }
 
-class _ReadPlaylistJsonState extends State<PlaylistView> {
+class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
   List _items = [];
   var _data = new Map();
-
+  var _res = {};
+  String? _lastAct;
   void initState() {
     super.initState();
-    // final args = ModalRoute.of(context)!.settings.arguments as RootID;
+    print('playlistview initState');
+    //final args = ModalRoute.of(context)!.settings.arguments as RootID;
     //print('initState = ${args}');
+  }
+
+  @override
+  void didPopNext() {
+    // Covering route was popped off the navigator.
   }
 
   Future<void> readJson(RootID args) async {
     final String response =
         await rootBundle.loadString('assets/playlists/${args.id}.pschool');
     final data = await json.decode(response);
+
+    var res = {};
     try {
-      if (args.lastAct != null) {
+      res = await DatabaseHelper.instance.getPlaylistProgress(args.id);
+      print('readJson $res ${res['payload']}');
+      res = res['payload'] != null ? json.decode(res['payload']) : {};
+    } catch (e) {
+      print("Error in local DB : $e");
+    }
+    print('res = $res');
+    try {
+      if (args.lastAct != null && args.lastAct != _lastAct) {
         String lastAct = args.lastAct ?? '';
         if (lastAct.indexOf('_') != -1) {
           int nextIndex =
@@ -56,12 +74,18 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
           List list = data['list'].toList();
           Map actData = list.firstWhere((item) => item['id'] == actId);
           if (actData['data'].length >= nextIndex) {
-            var data = _deriveData(actData, nextIndex - 1, {});
+            var data = _deriveData(actData, nextIndex - 1, res[actData['id']]);
             bool isLocked = nextIndex > (actData['data'].length / 2).ceil();
             if (!isLocked || args.paidUser == true) {
               Navigator.pushReplacementNamed(context, '/activity',
-                  arguments: ActivityPageArgs(
-                      data, args.id, '${actData['id']}_${(nextIndex)}'));
+                      arguments: ActivityPageArgs(
+                          data, args.id, '${actData['id']}_${(nextIndex)}'))
+                  .then((_) => setState(() {
+                        _res = {};
+                        _items = [];
+                        _data = {};
+                        _lastAct = args.lastAct;
+                      }));
               /*
               Navigator.popAndPushNamed(context, '/activity',
                   arguments: ActivityPageArgs(
@@ -78,14 +102,17 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
     setState(() {
       _items = data["list"];
       _data = data as Map;
+      _res = res as Map;
     });
     return data;
   }
 
+  showAct() {}
+
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)!.settings.arguments as RootID;
     if (_items.length == 0) {
-      final args = ModalRoute.of(context)!.settings.arguments as RootID;
       readJson(args);
     }
     if (_items.length == 0) {
@@ -113,7 +140,7 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
 
           return Column(
               children: _items.mapIndexed((i, item) {
-            var res = responses[_items[i]['id']];
+            var res = _res[_items[i]['id']]; //responses[_items[i]['id']];
             final isList = _items[i]['data'][0] != null;
             return Container(
               padding: const EdgeInsets.all(10),
@@ -156,18 +183,45 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
                         payload = {...payload, 'data': data};
                       }
                       //pushNamed is changed to popAndPushNamed
+                      if (args.lastAct != null) {
+                        Navigator.pushReplacementNamed(context, '/activity',
+                                arguments: ActivityPageArgs(
+                                    payload, _data["id"], _items[i]['id']))
+                            .then((_) => setState(() {
+                                  _res = {};
+                                  _items = [];
+                                  _data = {};
+                                }));
+                      } else {
+                        Navigator.pushNamed(context, '/activity',
+                                arguments: ActivityPageArgs(
+                                    payload, _data["id"], _items[i]['id']))
+                            .then((_) => setState(() {
+                                  _res = {};
+                                  _items = [];
+                                  _data = {};
+                                }));
+                      }
 
-                      Navigator.pushNamed(context, '/activity',
-                          arguments: ActivityPageArgs(
-                              payload, _data["id"], _items[i]['id']));
+                      ;
                     },
                     child: Text(_items[i]["label"]),
                   )),
                   if (res != null)
                     GestureDetector(
                         onTap: () {
+                          /*
                           controller.clearActivity(
                               _data['id'], _items[i]['id']);
+                              */
+                          Map res = {..._res};
+                          var value = res.remove(_items[i]['id']);
+                          print('value = $value');
+                          DatabaseHelper.instance
+                              .removeResponse(json.encode(res), _data["id"]);
+                          setState(() {
+                            _res = res;
+                          });
                         },
                         child: Wrap(children: [
                           Text(res?['score'] != null
@@ -196,7 +250,8 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
                                     pos: j,
                                     playlistId: _data['id'],
                                     paidUser:
-                                        controller.user['paidUser'] ?? false))
+                                        controller.user['paidUser'] ?? false,
+                                    args: args))
                                 .toList(),
                           )))
               ])
@@ -208,7 +263,7 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
         }))));
   }
 
-  Widget getActBtn({item, res, pos, playlistId, paidUser}) {
+  Widget getActBtn({item, res, pos, playlistId, paidUser, args}) {
     bool isLocked = false;
     if (!paidUser) {
       //isLocked = (item['appLockAfter'] ?? item['lockAfter'] ?? 100) < pos;
@@ -243,20 +298,38 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
               pos,
               res,
             );
-            Navigator.pushNamed(context, '/activity',
-                arguments: ActivityPageArgs(
-                    data, playlistId, '${item['id']}_${(pos + 1)}'));
+            if (args.lastAct != null) {
+              Navigator.pushReplacementNamed(context, '/activity',
+                      arguments: ActivityPageArgs(
+                          data, playlistId, '${item['id']}_${(pos + 1)}'))
+                  .then((_) => setState(() {
+                        _res = {};
+                        _items = [];
+                        _data = {};
+                      }));
+            } else {
+              Navigator.pushNamed(context, '/activity',
+                      arguments: ActivityPageArgs(
+                          data, playlistId, '${item['id']}_${(pos + 1)}'))
+                  .then((_) => setState(() {
+                        _res = {};
+                        _items = [];
+                        _data = {};
+                      }));
+            }
           },
           style: ElevatedButton.styleFrom(
-              primary:
-                  res?[pos + 1] == null ? Color(0xffbcdbf7) : Color(0xffcda4fe),
+              primary: res?[(pos + 1).toString()] == null
+                  ? Color(0xffbcdbf7)
+                  : Color(0xffcda4fe),
               onPrimary: Colors.black),
           child: Wrap(
             alignment: WrapAlignment.spaceAround,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              if (res?[pos + 1]?['score'] != null)
-                Text((res?[pos + 1]?['score'].toString() ?? '') + '%')
+              if (res?[(pos + 1).toString()]?['score'] != null)
+                Text((res?[(pos + 1).toString()]?['score'].toString() ?? '') +
+                    '%')
               else
                 Text((pos + 1).toString()),
             ],
@@ -290,8 +363,11 @@ class _ReadPlaylistJsonState extends State<PlaylistView> {
       }
       payload = {...payload, ...data['data'][pos]};
     }
-    if (responses?[pos + 1] != null) {
-      payload = {...payload, 'saved': responses[pos + 1]['response']};
+    if (responses?[(pos + 1).toString()] != null) {
+      payload = {
+        ...payload,
+        'saved': responses[(pos + 1).toString()]['response']
+      };
     }
     return {
       'id': data['id'],

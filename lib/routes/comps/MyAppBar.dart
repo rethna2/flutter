@@ -65,6 +65,11 @@ class _MainMenu extends StatelessWidget {
             context,
             '/about',
           );
+        } else if (item == 'Test') {
+          Navigator.pushNamed(
+            context,
+            '/test2',
+          );
         } else if (item == 'All Playlists') {
           Navigator.pushNamed(context, '/allPlaylists',
               arguments: RootID('math-more'));
@@ -77,8 +82,12 @@ class _MainMenu extends StatelessWidget {
             size: 36.0,
           )),
       itemBuilder: (BuildContext context) {
-        return {'Home Page', 'Member', 'About Us', 'All Playlists'}
-            .map((String choice) {
+        return {
+          'Home Page',
+          'Member',
+          'About Us',
+          'All Playlists', /*'Test'*/
+        }.map((String choice) {
           return PopupMenuItem<String>(
             value: choice,
             child: Text(choice),

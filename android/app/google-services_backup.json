@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "686387731334",
+    "project_id": "pschool-ec5ab",
+    "storage_bucket": "pschool-ec5ab.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:686387731334:android:d0334a8e8b8900fff72a07",
+        "android_client_info": {
+          "package_name": "app.pschool.math"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "686387731334-3bo6vpq8ea5m0cnc54lvoii71jk2g367.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.pschool.math",
+            "certificate_hash": "bb061c157315e151f1de20ed6fd26380ff86c5d3"
+          }
+        },
+        {
+          "client_id": "686387731334-v78jdi10log8v3jdbnao68ecpbftc5aq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEN1bu9CBPTYI-JELOw6OdMh3BoIuvwWU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "686387731334-v78jdi10log8v3jdbnao68ecpbftc5aq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

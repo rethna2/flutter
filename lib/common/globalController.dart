@@ -44,7 +44,8 @@ class GlobalController with ChangeNotifier {
     } else {
       user = {};
     }
-    String str = await readFile();
+    String str = await readFile("response");
+    print('response string = $str');
     Map res = {};
     if (str != '') {
       res = json.decode(str) as Map;
@@ -96,7 +97,15 @@ class GlobalController with ChangeNotifier {
       responses[playlistId][actId][position] = obj;
     }
     try {
-      bool success = await writeFile(json.encode(responses));
+      bool success = false; //await writeFile(json.encode(responses));
+      print('success $success $obj');
+      PlaylistProg playlistProg = PlaylistProg(
+          id: playlistId,
+          payload: json.encode(obj),
+          date: DateTime.now().millisecondsSinceEpoch);
+
+      print('beforeSave ${playlistProg.toMap()}');
+      await DatabaseHelper.instance.add(playlistProg, playlistId);
     } catch (e) {
       print('Error!! write failed : $e');
     }
