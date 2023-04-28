@@ -12,16 +12,20 @@ class RootID {
   final String id;
   String? lastAct;
   bool? paidUser;
-  RootID(this.id, [this.lastAct, this.paidUser]);
+  bool? isBack;
+  RootID(this.id, [this.lastAct, this.paidUser, this.isBack]);
 }
 
 class GlobalController with ChangeNotifier {
-  GlobalController(this._globalService, context) {
+  GlobalController(this._globalService, context, appConfig) {
     responses = {};
+    config = appConfig;
     user = {
-      'userPref': {'grade': 'all', 'clapSound': true}
+      'userPref': {'grade': 'all', 'clapSound': true},
+      'paidUser': config['freeApp'] ?? false
     };
     loadSettings();
+    // In freeApp all users are considered as paidUser
   }
 
   final GlobalService _globalService;
@@ -30,7 +34,7 @@ class GlobalController with ChangeNotifier {
 
   late Map responses;
   late Map user;
-
+  late Map config;
   String version = "1.0.0";
 
   ThemeMode get themeMode => _themeMode;
@@ -41,11 +45,8 @@ class GlobalController with ChangeNotifier {
     String userStr = await readFile('user');
     if (userStr != '') {
       user = json.decode(userStr) as Map;
-    } else {
-      user = {};
     }
     String str = await readFile("response");
-    print('response string = $str');
     Map res = {};
     if (str != '') {
       res = json.decode(str) as Map;
@@ -153,7 +154,14 @@ class GlobalController with ChangeNotifier {
       ...userPref,
     };
     userPref[key] = value;
+    print('updateUserPref = $userPref');
     user = {...user, 'userPref': userPref};
+    await writeFile(json.encode(user), 'user');
+    notifyListeners();
+  }
+
+  Future<void> clearUserPref() async {
+    user = {...user, 'userPref': {}};
     await writeFile(json.encode(user), 'user');
     notifyListeners();
   }

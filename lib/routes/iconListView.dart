@@ -31,35 +31,44 @@ class IconListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //if (data['gradeFilter']) {}
+    //if (data['grades']) {}
     Size size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: MyAppBar(),
         resizeToAvoidBottomInset: false,
         body: SingleChildScrollView(child: Center(child:
             Consumer<GlobalController>(builder: (context, controller, child) {
-          String grade = controller.user['userPref']?['grade'] ?? 'g4';
           List items;
-
-          items = data['list'].where((item) {
-            List range =
-                item['grade'].split('-').map((no) => int.parse(no)).toList();
-            bool b;
-            RegExp exp = RegExp(r'(\d+)');
-            RegExpMatch? matches = exp.firstMatch(grade);
-            var gradeNo = int.parse(matches?.group(0) ?? '0');
-            if (range.length == 1) {
-              b = range[0] == gradeNo;
-            } else {
-              b = range[0] <= gradeNo && range[1] >= gradeNo;
+          String grade = 'g4';
+          if (data['grades'] != null) {
+            grade = controller.user['userPref']?['grade'];
+            if (grade == 'all') {
+              grade = 'g4';
             }
-            return b;
-            //return item['grade'].toString().indexOf(grade) != -1;
-          }).toList();
+            items = data['list'].where((item) {
+              List range =
+                  item['grade'].split('-').map((no) => int.parse(no)).toList();
+              bool b;
+              RegExp exp = RegExp(r'(\d+)');
+              RegExpMatch? matches = exp.firstMatch(grade);
+              var gradeNo = int.parse(matches?.group(0) ?? '0');
+              if (range.length == 1) {
+                b = range[0] == gradeNo;
+              } else {
+                b = range[0] <= gradeNo && range[1] >= gradeNo;
+              }
+              return b;
+              //return item['grade'].toString().indexOf(grade) != -1;
+            }).toList();
+          } else {
+            items = data['list'].toList();
+          }
+
           /*
           final List items = data['list']
               .where((item) => item['grade'].toString().indexOf(grade) != -1)
               .toList();*/
+
           return Container(
               padding: const EdgeInsets.all(10),
               width: double.infinity,
@@ -85,14 +94,14 @@ class IconListView extends StatelessWidget {
                                     decoration: TextDecoration.underline,
                                     decorationStyle: TextDecorationStyle.double,
                                     fontSize: 25))),
-                        if (data['gradeFilter'] != null)
+                        if (data['grades'] != null)
                           Positioned(
                               right: 10,
                               top: -10,
                               child: DropdownButton(
                                 value: grade,
                                 icon: const Icon(Icons.keyboard_arrow_down),
-                                items: data['gradeFilter']
+                                items: data['grades']
                                     .map<DropdownMenuItem<String>>((item) {
                                   return DropdownMenuItem<String>(
                                     value: item['id'],
@@ -102,6 +111,7 @@ class IconListView extends StatelessWidget {
                                 // After selecting the desired option,it will
                                 // change button value to selected value
                                 onChanged: (newValue) {
+                                  print('gradeChange = $newValue');
                                   controller.updateUserPref(
                                       'grade', newValue.toString());
                                 },
@@ -124,7 +134,7 @@ class IconListView extends StatelessWidget {
                                     },
                                     child: Column(children: [
                                       Image.asset(
-                                          'assets/icons/${item["img"]}.jpg',
+                                          'assets/icons/${item["img"]}.png',
                                           fit: BoxFit.contain,
                                           width: 80,
                                           height: 80),

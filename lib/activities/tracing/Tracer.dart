@@ -47,6 +47,7 @@ class _TracerState extends State<Tracer> with TickerProviderStateMixin {
     setState(() {
       pathList = widget.pathList;
       step = 0;
+      length = 0;
     });
     super.didUpdateWidget(old);
   }
@@ -155,6 +156,18 @@ class TracerPainter extends CustomPainter {
     Path path = new Path();
     Path path2 = new Path();
     Path donePath = new Path();
+    Path supportLine = new Path();
+
+    supportLine.moveTo(-400, 30);
+    supportLine.lineTo(800, 30);
+    supportLine.moveTo(-400, 180);
+    supportLine.lineTo(800, 180);
+    supportLine.moveTo(-400, 330);
+    supportLine.lineTo(800, 330);
+    supportLine.moveTo(-400, 480);
+    supportLine.lineTo(800, 480);
+
+    canvas.drawPath(supportLine, _getPaint(Colors.blue, false, 1.0));
 
     for (int i = 0; i < pathList.length; i++) {
       if (i == step) {
@@ -222,11 +235,11 @@ double getNextPos(travel, p, currentx, currenty, pathData) {
   }
 }
 
-Paint _getPaint(color, [isFill]) {
+Paint _getPaint(color, [isFill, strokeWidth]) {
   return Paint()
     ..color = color
     ..style = isFill == true ? PaintingStyle.fill : PaintingStyle.stroke
     ..strokeCap = StrokeCap.round
     ..strokeJoin = StrokeJoin.round
-    ..strokeWidth = 8.0;
+    ..strokeWidth = strokeWidth ?? 8.0;
 }

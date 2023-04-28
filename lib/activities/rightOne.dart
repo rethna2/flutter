@@ -120,7 +120,7 @@ class _RightOneState extends State<RightOne> with TickerProviderStateMixin {
   void playaudio() async {
     if (player.processingState != ProcessingState.idle &&
         player.processingState != ProcessingState.completed) {
-      return;
+      //return;
     }
     int offset = list[index]['audio'];
     try {

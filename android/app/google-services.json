@@ -7,9 +7,125 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:572440977987:android:1861bbac1e0e6610e0aaf6",
+        "android_client_info": {
+          "package_name": "app.pschool.bengali"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "572440977987-amm3chj6d6d2gkj3bqpl2cff8e8957vr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9wELpjkw0mlFYRTuVblaP__7G_WtaOcE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "572440977987-amm3chj6d6d2gkj3bqpl2cff8e8957vr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:572440977987:android:8fa71a15772e1408e0aaf6",
+        "android_client_info": {
+          "package_name": "app.pschool.hindi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "572440977987-amm3chj6d6d2gkj3bqpl2cff8e8957vr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9wELpjkw0mlFYRTuVblaP__7G_WtaOcE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "572440977987-amm3chj6d6d2gkj3bqpl2cff8e8957vr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:572440977987:android:b7da85264db46045e0aaf6",
         "android_client_info": {
           "package_name": "app.pschool.math"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "572440977987-amm3chj6d6d2gkj3bqpl2cff8e8957vr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9wELpjkw0mlFYRTuVblaP__7G_WtaOcE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "572440977987-amm3chj6d6d2gkj3bqpl2cff8e8957vr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:572440977987:android:df39756e5a6a81e5e0aaf6",
+        "android_client_info": {
+          "package_name": "app.pschool.tamil"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "572440977987-amm3chj6d6d2gkj3bqpl2cff8e8957vr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9wELpjkw0mlFYRTuVblaP__7G_WtaOcE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "572440977987-amm3chj6d6d2gkj3bqpl2cff8e8957vr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:572440977987:android:463e2853b99421c7e0aaf6",
+        "android_client_info": {
+          "package_name": "com.gotowisdom.pschool"
         }
       },
       "oauth_client": [

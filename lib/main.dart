@@ -11,7 +11,8 @@ import 'routes/iconListView.dart';
 import 'routes/activityView.dart';
 import 'routes/playlistView.dart';
 import 'routes/allPlaylistsView.dart';
-import 'routes/aboutUsMath.dart';
+//import 'routes/aboutUs/aboutUsMath.dart';
+import 'routes/aboutUs/aboutUs.dart';
 import 'routes/askToSubscribe.dart';
 import 'routes/testPage.dart';
 
@@ -65,15 +66,32 @@ Future<void> main() async {
     sound: true,
   );
 
-  final String showcase =
-      await rootBundle.loadString('assets/playlists/maths-sc.pschool');
+/*
+  String showcaseFile = 'assets/playlists/maths-sc.pschool';
+  const appName = "PSchool Math";
+  const config = {
+    'appBarTitle': 'PSchool Math',
+    'freeApp': false,
+    'allPlaylistId': 'math-more'
+  };
+ */
+
+  String showcaseFile = 'assets/playlists/pschool.pschool';
+  const appName = "Showcase";
+  const config = {
+    'appBarTitle': 'PSchool',
+    'freeApp': false,
+    'allPlaylistId': 'pschool-more'
+  };
+
+  final String showcase = await rootBundle.loadString(showcaseFile);
   final data = await json.decode(showcase);
 
   runApp(ChangeNotifierProvider(
-      create: (context) => GlobalController(GlobalService(), context),
+      create: (context) => GlobalController(GlobalService(), context, config),
       child: OverlaySupport(
           child: MaterialApp(
-        title: 'PSchool Math', theme: appTheme, initialRoute: '/',
+        title: 'PSchool', theme: appTheme, initialRoute: '/',
         // home: const MyHome(),
         onGenerateRoute: (RouteSettings routeSettings) {
           return MaterialPageRoute<void>(

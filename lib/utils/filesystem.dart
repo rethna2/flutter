@@ -74,7 +74,7 @@ CREATE TABLE playlistProg(
   }
 
   Future<int> addResponse(
-      response, String playlistId, String activityId, score) async {
+      response, String playlistId, String activityId, score, actsCount) async {
     print('addResponse $playlistId $activityId $score $response');
 
     bool present = false;
@@ -139,6 +139,7 @@ CREATE TABLE playlistProg(
     } catch (e) {
       print('ERROR WRITING $e');
     }
+    bool res = await updateMasterProg(playlistId, payload, actsCount);
     return result;
   }
 
@@ -201,9 +202,56 @@ class PlaylistProg {
 Future<bool> writeFile(String str, [String type = 'response']) async {
   final directory = await getApplicationDocumentsDirectory();
   final path = directory.path;
-  File file = File('$path/$type.json');
+  File file = File('$path/${type}.json');
   try {
     await file.writeAsString(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+Future<bool> updateMasterProg(
+    String playlistId, Map payload, num actsCount) async {
+  num count = 0;
+  num score = 0;
+  num scoreCount = 0;
+  print('updateMasterProg payload = ${json.encode(payload)}');
+  for (var k in payload.keys) {
+    if (payload[k]['response'] != null) {
+      if (payload[k]['score'] != null) {
+        score += payload[k]['score'];
+        scoreCount += 1;
+      }
+      count++;
+    } else {
+      for (var m in payload[k].keys) {
+        print('res = ${payload[k][m]}');
+        if (payload[k][m] != null && payload[k][m]['score'] != null) {
+          score += payload[k][m]['score'];
+          scoreCount += 1;
+        }
+        count++;
+      }
+    }
+  }
+
+  final directory = await getApplicationDocumentsDirectory();
+  final path = directory.path;
+  File file = File('$path/masterProg.json');
+  bool exists = await file.exists();
+  Map content = {};
+  if (exists) {
+    final contentStr = await file.readAsString();
+    content = json.decode(contentStr) as Map;
+  }
+  try {
+    content[playlistId] = {
+      'score': (score / scoreCount).round(),
+      'progress': (count / actsCount * 100).round()
+    };
+    print('updateMasterProg = $content');
+    await file.writeAsString(json.encode(content));
     return true;
   } catch (e) {
     return false;

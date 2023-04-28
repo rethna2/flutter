@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations":[
+        {
+            "name": "Launch Tamil",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main_tamil.dart",
+            "args": ["--flavor", "development", "--target", "lib/main_tamil.dart"]
+          
+        }
+    ]
+}  

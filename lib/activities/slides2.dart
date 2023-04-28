@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import '../utils/dataUtils.dart' as utils;
+import 'comps/CoolSwiper.dart';
 
 class Slides2 extends StatefulWidget {
   const Slides2({Key? key, required this.data, required this.activityCallback})
@@ -26,10 +27,42 @@ class _Slides2State extends State<Slides2> {
   @override
   void initState() {
     try {
-      list = utils.inputStrToArr(widget.data['steps'][0]);
+      if (widget.data['steps'][0] is String) {
+        list = utils.inputStrToArr(widget.data['steps'][0]);
+      } else {
+        list = widget.data['steps'].map((item) {
+          if (item is Map) {
+            return item;
+          } else if (item is List) {
+            List temp = item.map((unit) {
+              if (unit is String) {
+                return unit;
+              } else if (unit['type'] == 'reusable') {
+                print('yes reusable');
+                return widget.data['reusables'][unit['id']].toList();
+              }
+              return unit;
+            }).toList();
+            print('success till');
+            List temp2 = [];
+            temp.forEach((item) => item is List
+                ? item.forEach((unit) => temp2.add(unit))
+                : temp2.add(item));
+            //temp = temp.expand((i) => i).toList();
+            // temp = temp.reduce((value, element) => value + element);
+            print('but failed here');
+            return temp2;
+          }
+        }).toList();
+      }
     } catch (e) {
       list = ['Dummy Text'];
       print('Slides2 Error! $e');
+    }
+
+    if (widget.data['displayType'] == 'steps' ||
+        widget.data['displayType'] == 'custom') {
+      return;
     }
     player = AudioPlayer();
     player.setAsset('assets/sound/${widget.data['audio']}');
@@ -76,14 +109,117 @@ class _Slides2State extends State<Slides2> {
 
   @override
   void dispose() {
-    player.dispose();
-    timer.cancel();
+    if (widget.data['displayType'] != 'steps') {
+      player.dispose();
+      timer.cancel();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    if (widget.data['displayType'] == 'steps') {
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: SafeArea(
+          child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: CoolSwiper(
+                activityCallback: widget.activityCallback,
+                audio: widget.data['audio'] ?? 'none',
+                audioOffset: widget.data['audioOffset'] ?? 0,
+                audioWidth: widget.data['audioWidth'] ?? 2,
+                audioOffsets: widget.data['audioOffsets'],
+                images: widget.data['images'],
+                imageArr: widget.data['imageArr'],
+                title: 'Read and swipe the cards!',
+                children: List.generate(
+                  list.length,
+                  (index) {
+                    List data;
+                    if (widget.data['imageArr'] != null) {
+                      data = [
+                        'assets/${widget.data['images']}/${widget.data['imageArr'][index]}.jpg',
+                        list[index]
+                      ];
+                    } else if (list[index] is Map &&
+                        list[index]['img'] != null) {
+                      data = [
+                        'assets/${widget.data['images']}/${list[index]['img']}.jpg',
+                        list[index]['text']
+                      ];
+                    } else {
+                      data = [
+                        'assets/${widget.data['images']}/${index + 1}.jpg',
+                        list[index]
+                      ];
+                    }
+                    return CardContent(
+                      color: Data.colors[index % Data.colors.length],
+                      children: [
+                        Image.asset(
+                            data[0].indexOf('.') == -1
+                                ? 'assets/stockimg/${data[0]}.jpg'
+                                : data[0],
+                            width: 160,
+                            height: 160,
+                            fit: BoxFit.contain),
+                        const SizedBox(height: 40),
+                        Center(
+                            child: Text(data[1].toString(),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 18)))
+                      ],
+                    );
+                  },
+                ),
+              )),
+        ),
+      );
+    }
+
+    if (widget.data['displayType'] == 'custom') {
+      print('custom = $list');
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: SafeArea(
+          child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: CoolSwiper(
+                activityCallback: widget.activityCallback,
+                audio: widget.data['audio'] ?? 'none',
+                audioOffset: widget.data['audioOffset'] ?? 0,
+                audioWidth: widget.data['audioWidth'] ?? 2,
+                audioOffsets: widget.data['audioOffsets'],
+                images: widget.data['images'],
+                imageArr: widget.data['imageArr'],
+                title: 'Read and swipe the cards!',
+                children: List.generate(
+                  list.length,
+                  (index) {
+                    List<Widget> data = List<Widget>.generate(
+                        list[index].length,
+                        (i) => Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
+                            child: Text(
+                                list[index][i] is Map
+                                    ? list[index][i]['text']
+                                    : list[index][i],
+                                textAlign: TextAlign.left,
+                                style: TextStyle(fontSize: 18)))).toList();
+
+                    return CardContent(
+                        color: Data.colors[index % Data.colors.length],
+                        children: data);
+                  },
+                ),
+              )),
+        ),
+      );
+    }
+    return SingleChildScrollView(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       for (int i = 0; i < list.length; i++)
         GestureDetector(
             onTap: () {
@@ -100,7 +236,7 @@ class _Slides2State extends State<Slides2> {
                 child: Text(list[i],
                     style: TextStyle(
                         color: index == i ? Colors.red : Colors.black))))
-    ]);
+    ]));
   }
 }
 /*

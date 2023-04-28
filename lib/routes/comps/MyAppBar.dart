@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../common/globalController.dart';
+import 'package:provider/provider.dart';
 
 class MyAppBar extends StatelessWidget with PreferredSizeWidget {
   MyAppBar({Key? key, this.title}) : super(key: key);
   String? title;
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-        title: GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                '/',
-              );
-            },
-            child: Text(title ?? 'PSchool Math ',
-                style:
-                    GoogleFonts.girassol(textStyle: TextStyle(fontSize: 24)))),
-        actions: [_MainMenu()]);
+    return Consumer<GlobalController>(builder: (context, controller, child) {
+      return AppBar(
+          title: GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  '/',
+                );
+              },
+              child: Text(title ?? controller.config['appBarTitle'],
+                  style: GoogleFonts.girassol(
+                      textStyle: TextStyle(fontSize: 24)))),
+          actions: [_MainMenu(config: controller.config)]);
+    });
   }
 
   @override
@@ -26,7 +29,8 @@ class MyAppBar extends StatelessWidget with PreferredSizeWidget {
 }
 
 class _MainMenu extends StatelessWidget {
-  const _MainMenu({Key? key}) : super(key: key);
+  _MainMenu({Key? key, required this.config}) : super(key: key);
+  late Map config;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +52,7 @@ class _MainMenu extends StatelessWidget {
           child: Text('About Us'),
         ));
     */
+
     return PopupMenuButton<String>(
       onSelected: (item) {
         if (item == 'Home Page') {
@@ -72,7 +77,7 @@ class _MainMenu extends StatelessWidget {
           );
         } else if (item == 'All Playlists') {
           Navigator.pushNamed(context, '/allPlaylists',
-              arguments: RootID('math-more'));
+              arguments: RootID(config['allPlaylistId']));
         }
       },
       child: Padding(
@@ -82,17 +87,27 @@ class _MainMenu extends StatelessWidget {
             size: 36.0,
           )),
       itemBuilder: (BuildContext context) {
-        return {
-          'Home Page',
-          'Member',
-          'About Us',
-          'All Playlists', /*'Test'*/
-        }.map((String choice) {
-          return PopupMenuItem<String>(
-            value: choice,
-            child: Text(choice),
-          );
-        }).toList();
+        if (config['freeApp'] == true) {
+          return {'Home Page', 'About Us', 'All Playlists'}
+              .map((String choice) {
+            return PopupMenuItem<String>(
+              value: choice,
+              child: Text(choice),
+            );
+          }).toList();
+        } else {
+          return {
+            'Home Page',
+            'Member',
+            'About Us',
+            'All Playlists', /*'Test'*/
+          }.map((String choice) {
+            return PopupMenuItem<String>(
+              value: choice,
+              child: Text(choice),
+            );
+          }).toList();
+        }
       },
     );
   }

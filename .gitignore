@@ -34,6 +34,11 @@ migrate_working_dir/
 
 # Rethna Added
 /assets/
+/assets_math/
+/assets_hindi/
+/assets_bengali/
+/assets_tamil/
+/assets_pschool/
 /webNextjs/
 
 # Web related

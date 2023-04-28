@@ -3,7 +3,8 @@ import 'package:pschool_math/routes/comps/core.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flutter/gestures.dart';
 import 'comps/MyAppBar.dart';
-
+import 'package:provider/provider.dart';
+import '../common/globalController.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -19,7 +20,7 @@ class TestPage extends StatefulWidget {
 
 class _TestPageState extends State<TestPage> {
   int _counter = 0;
-
+  String _user = '';
   void _incrementCounter() {
     setState(() {
       _counter++;
@@ -27,7 +28,16 @@ class _TestPageState extends State<TestPage> {
   }
 
   @override
-  void initState() {}
+  void initState() {
+    getUserInfo();
+  }
+
+  void getUserInfo() async {
+    String userStr = await readFile('user');
+    setState(() {
+      _user = userStr;
+    });
+  }
 
   void showNotification() {
     print('showNotification');
@@ -50,27 +60,35 @@ class _TestPageState extends State<TestPage> {
         const TextStyle(height: 1.5, fontSize: 18, color: Colors.black);
     return Scaffold(
         appBar: MyAppBar(),
-        body: Container(
-            child: SingleChildScrollView(
-                child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(15),
-              child: Text('About Us',
-                  style: paraStyle.copyWith(fontSize: 30, color: Colors.blue)),
-            ),
-            Button(
-                label: "Send Local Notification",
-                onClick: () {
-                  print('My Notification');
-                  showNotification();
-                }),
-            Button(
-                label: "Clear DB",
-                onClick: () {
-                  DatabaseHelper.instance.deleteDB();
-                })
-          ],
-        ))));
+        body: Container(child: SingleChildScrollView(child:
+            Consumer<GlobalController>(builder: (context, controller, child) {
+          return Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(15),
+                child: Text('About Us',
+                    style:
+                        paraStyle.copyWith(fontSize: 30, color: Colors.blue)),
+              ),
+              Button(
+                  label: "Send Local Notification",
+                  onClick: () {
+                    print('My Notification');
+                    showNotification();
+                  }),
+              Button(
+                  label: "Clear DB",
+                  onClick: () {
+                    DatabaseHelper.instance.deleteDB();
+                  }),
+              Button(
+                  label: 'Clear User Pref',
+                  onClick: () {
+                    controller.clearUserPref();
+                  }),
+              Text(_user)
+            ],
+          );
+        }))));
   }
 }

@@ -18,7 +18,8 @@ class ActivityPageArgs {
   final Map data;
   final String playlistId;
   final String activityId;
-  ActivityPageArgs(this.data, this.playlistId, this.activityId);
+  final num actsCount;
+  ActivityPageArgs(this.data, this.playlistId, this.activityId, this.actsCount);
 }
 
 class ActivityView extends StatefulWidget {
@@ -71,6 +72,7 @@ class ActivityViewState extends State<ActivityView> {
   GlobalKey stickyKey = GlobalKey();
   int progress = 0;
   bool _saved = false;
+  bool _loading = true;
   double width = 400;
   late AudioPlayer player;
   late Map response;
@@ -110,20 +112,19 @@ class ActivityViewState extends State<ActivityView> {
     super.dispose();
   }
 
-  void activityCallback(payload, controller) {
+  void activityCallback(payload, controller) async {
     final args = ModalRoute.of(context)!.settings.arguments as ActivityPageArgs;
-    if (payload['type'] == 'progress') {
+    if (payload['type'] == 'error') {
+      Navigator.popAndPushNamed(context, '/playlist',
+          arguments: RootID(args.playlistId, args.activityId, true, true));
+      print('Error in loading!');
+      return;
+    } else if (payload['type'] == 'progress') {
       setState(() {
-        progress = payload['progress'];
+        progress = payload['progress'].toInt();
       });
     } else if (payload['type'] == 'resultView') {
-      int? score = _calcScore(payload['response']);
-      if ((score ?? 0) >= 90) {
-        _controllerCenter.play();
-        player.play();
-      }
-      DatabaseHelper.instance.addResponse(
-          payload['response'], args.playlistId, args.activityId, score);
+      bool res = await updateProgress(payload, args, controller);
       /*
       controller.updateResponse(
           payload['response'], playlistId, activityId, score);
@@ -136,18 +137,29 @@ class ActivityViewState extends State<ActivityView> {
     } else if (payload['type'] == 'complete') {
       // some activities does't have resultView
       if (!_saved) {
-        int? score = _calcScore(payload['response']);
-        if ((score ?? 0) >= 90) {
-          _controllerCenter.play();
-          player.play();
-        }
-        DatabaseHelper.instance.addResponse(
-            payload['response'], args.playlistId, args.activityId, score);
+        bool res = await updateProgress(payload, args, controller);
       }
       Navigator.popAndPushNamed(context, '/playlist',
           arguments: RootID(
               args.playlistId, args.activityId, controller.user['paidUser']));
     }
+  }
+
+  Future<bool> updateProgress(payload, args, controller) async {
+    //  print('updateProgress ${json.encode(payload)}');
+    if (payload['response'] == null) {
+      return false;
+    }
+    int? score = _calcScore(payload['response']);
+    if ((score ?? 0) >= 90) {
+      _controllerCenter.play();
+      if (controller.user['userPref']['clapSound'] == true) {
+        player.play();
+      }
+    }
+    await DatabaseHelper.instance.addResponse(payload['response'],
+        args.playlistId, args.activityId, score, args.actsCount);
+    return true;
   }
 
   _launchURL(String url) async {
@@ -159,104 +171,144 @@ class ActivityViewState extends State<ActivityView> {
     }
   }
 
+  Future<bool> _onWillPop(args) async {
+    Navigator.popAndPushNamed(context, '/playlist',
+        arguments: RootID(args.playlistId, args.activityId, true, true));
+    return false; //<-- SEE HERE
+  }
+
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as ActivityPageArgs;
     Size size = MediaQuery.of(context).size;
-    print("activityView build");
-    return Scaffold(
-        appBar: MyAppBar(),
-        body: Column(key: stickyKey, children: [
-          Stack(
-            children: [
-              Container(
-                width: double.infinity,
-                height: 10,
-                color: Colors.white,
+    print("activityView build $_loading");
+    /*
+    if (_loading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {
+            _loading = false;
+          }));
+      return Scaffold(
+          appBar: MyAppBar(), body: Container(child: Text('Loading....')));
+    }
+    */
+    return WillPopScope(
+        onWillPop: () => _onWillPop(args),
+        child: Scaffold(
+            appBar: MyAppBar(),
+            body: Column(key: stickyKey, children: [
+              Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 10,
+                    color: Colors.white,
+                  ),
+                  Container(
+                    width: this.progress * width / 100,
+                    height: 10,
+                    color: Colors.blue,
+                  ),
+                ],
               ),
-              Container(
-                width: this.progress * width / 100,
-                height: 10,
-                color: Colors.blue,
-              ),
-            ],
-          ),
-          Align(
-              alignment: Alignment.topRight,
-              child: Text('${args.playlistId}/${args.activityId}',
-                  style: TextStyle(color: Colors.grey))),
-          Consumer<GlobalController>(builder: (context, controller, child) {
-            return Expanded(
-                child: Stack(fit: StackFit.expand, children: [
-              Container(
-                color: const Color(0xf6f6f8ff), //  Colors.blueAccent,
-              ),
-              !isNative(args.data)
-                  ? (WebViewPlus(
-                      //initialUrl: 'https://flutter.dev',
-                      initialUrl: 'webNextjs/acts/${args.data["type"]}.html',
-                      //initialUrl: 'webNextjs/audiotest.html',
-                      javascriptMode: JavascriptMode.unrestricted,
-                      onWebViewCreated: (controller) {
-                        this.webController = controller.webViewController;
-                      },
-                      onPageFinished: (value) async {
-                        print('value passed = ${args.data['data']}');
-                        var str = json.encode(args.data['data']);
-                        //await Future.delayed(const Duration(milliseconds: 200));
-                        this
-                            .webController
-                            .runJavascript('window.receiveActData(${str})');
-                      },
-                      onProgress: (int progress) {},
-                      navigationDelegate: (NavigationRequest request) {
-                        _launchURL(request.url);
-                        return NavigationDecision.prevent;
-                      },
-                      gestureNavigationEnabled: true,
-                      javascriptChannels: {
-                        JavascriptChannel(
-                            name: 'jsChannel',
-                            onMessageReceived: (message) async {
-                              var payload = json.decode(message.message) as Map;
-
-                              activityCallback(payload, controller);
-                              // await showDialog(context: context, builder: (context) => AlertDialog())
-                              //controller.webViewController.evaluateJavascript('ok()');
-                            })
-                      },
-                    ))
-                  : (Container(
-                      decoration: new BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface),
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(15),
-                      child: getActivity(args.data, size, (payload) {
-                        activityCallback(payload, controller);
-                      }))),
-              //ElevatedButton(onPressed: () {}, child: Text("Hello")),
               Align(
-                  alignment: Alignment.topCenter,
-                  child: ConfettiWidget(
-                    confettiController: _controllerCenter,
-                    blastDirectionality: BlastDirectionality.explosive,
-                    particleDrag: 0.05,
-                    emissionFrequency: 0.05,
-                    numberOfParticles: 30,
-                    gravity: 0.5,
-                    shouldLoop: false,
-                    colors: const [
-                      Colors.green,
-                      Colors.blue,
-                      Colors.pink,
-                      Colors.orange,
-                      Colors.purple
-                    ], // manually specify the colors to be used
-                  )),
-            ]));
-          }),
-        ])
-        //debug
-        );
+                  alignment: Alignment.topRight,
+                  child: Text('${args.playlistId}/${args.activityId}',
+                      style: TextStyle(color: Colors.grey))),
+              Consumer<GlobalController>(builder: (context, controller, child) {
+                return Expanded(
+                    child: Stack(fit: StackFit.expand, children: [
+                  Container(
+                    color: const Color(0xf6f6f8ff), //  Colors.blueAccent,
+                  ),
+                  !isNative(args.data)
+                      ? (WebViewPlus(
+                          //initialUrl: 'https://flutter.dev',
+                          initialUrl:
+                              'webNextjs/acts/${args.data["type"]}.html',
+                          //initialUrl: 'webNextjs/audiotest.html',
+                          javascriptMode: JavascriptMode.unrestricted,
+                          onWebViewCreated: (controller) {
+                            this.webController = controller.webViewController;
+                          },
+                          onPageFinished: (value) async {
+                            // print('value passed = ${args.data['data']}');
+                          },
+                          onWebResourceError: (WebResourceError error) {
+                            print('WebResourceError $error');
+                            // this.webController.reload();
+                            Navigator.popAndPushNamed(context, '/playlist',
+                                arguments: RootID(args.playlistId,
+                                    args.activityId, true, true));
+                          },
+                          onProgress: (int progress) {
+                            if (progress == 100) {
+                              print('loaded 100%');
+                              var str = json.encode(args.data['data']);
+                              //await Future.delayed(const Duration(milliseconds: 200));
+                              try {
+                                this.webController.runJavascript(
+                                    //'window.receiveActData(${str})'
+                                    'try{window.receiveActData(${str})}catch(e){ window.jsChannel.postMessage(\'{"type": "error"}\');}');
+                              } catch (e) {
+                                //this.webController.reload();
+                                Navigator.popAndPushNamed(context, '/playlist',
+                                    arguments: RootID(args.playlistId,
+                                        args.activityId, true, true));
+                                print('Error in loading!');
+                              }
+                            }
+                          },
+                          navigationDelegate: (NavigationRequest request) {
+                            _launchURL(request.url);
+                            return NavigationDecision.prevent;
+                          },
+                          gestureNavigationEnabled: true,
+                          javascriptChannels: {
+                            JavascriptChannel(
+                                name: 'jsChannel',
+                                onMessageReceived: (message) async {
+                                  print(
+                                      'message = ${message.toString()} : ${message.message}');
+                                  var payload =
+                                      json.decode(message.message) as Map;
+
+                                  activityCallback(payload, controller);
+                                  // await showDialog(context: context, builder: (context) => AlertDialog())
+                                  //controller.webViewController.evaluateJavascript('ok()');
+                                })
+                          },
+                        ))
+                      : (Container(
+                          decoration: new BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface),
+                          width: double.infinity,
+                          //padding: const EdgeInsets.all(15),
+                          child: getActivity(args.data, size, (payload) {
+                            activityCallback(payload, controller);
+                          }))),
+                  //ElevatedButton(onPressed: () {}, child: Text("Hello")),
+                  Align(
+                      alignment: Alignment.topCenter,
+                      child: ConfettiWidget(
+                        confettiController: _controllerCenter,
+                        blastDirectionality: BlastDirectionality.explosive,
+                        particleDrag: 0.05,
+                        emissionFrequency: 0.05,
+                        numberOfParticles: 30,
+                        gravity: 0.5,
+                        shouldLoop: false,
+                        colors: const [
+                          Colors.green,
+                          Colors.blue,
+                          Colors.pink,
+                          Colors.orange,
+                          Colors.purple
+                        ], // manually specify the colors to be used
+                      )),
+                ]));
+              }),
+            ])
+            //debug
+            ));
   }
 }
