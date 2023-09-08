@@ -37,6 +37,17 @@ int getPaymentMap(Map data) {
   return lastSubDate;
 }
 
+double parseNum(String str) {
+  RegExp exp = RegExp(r'\d+\.?\d*');
+  RegExpMatch? matches = exp.firstMatch(str);
+  double no = double.parse(matches?.group(0) ?? '1');
+  if (str.contains('rem')) {
+    return no * 16;
+  } else {
+    return no;
+  }
+}
+
 List _months = [
   'Jan',
   'Feb',

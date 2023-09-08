@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'comps/MyAppBar.dart';
 import '../common/globalController.dart';
+import './comps/social.dart';
 
 /*
 class IconListView extends StatelessWidget {
@@ -26,12 +27,19 @@ class IconListView extends StatelessWidget {
 }
 */
 class IconListView extends StatelessWidget {
-  const IconListView({Key? key, required this.data}) : super(key: key);
-  final Map data;
+  IconListView({Key? key, required this.data}) : super(key: key);
+  Map data;
 
   @override
   Widget build(BuildContext context) {
     //if (data['grades']) {}
+    if (ModalRoute.of(context)!.settings.arguments != null) {
+      final args = ModalRoute.of(context)!.settings.arguments as RouteArgs;
+      if (args != null && args.data != null) {
+        data = args.data ?? data;
+      }
+    }
+
     Size size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: MyAppBar(),
@@ -130,7 +138,9 @@ class IconListView extends StatelessWidget {
                                 child: InkWell(
                                     onTap: () {
                                       Navigator.pushNamed(context, '/playlist',
-                                          arguments: RootID(item["id"]));
+                                          arguments: RouteArgs(
+                                              id: item["id"],
+                                              prevRoute: 'menu'));
                                     },
                                     child: Column(children: [
                                       Image.asset(
@@ -146,7 +156,7 @@ class IconListView extends StatelessWidget {
                   ElevatedButton(
                       onPressed: () {
                         Navigator.pushNamed(context, '/allPlaylists',
-                            arguments: RootID(data['moreActivities']));
+                            arguments: RouteArgs(id: data['moreActivities']));
                       },
                       child: const Text("More Activities",
                           style: TextStyle(fontSize: 24)),
@@ -154,6 +164,7 @@ class IconListView extends StatelessWidget {
                           primary: Colors.purple,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 60, vertical: 15))),
+                const Social()
               ]));
         }))));
   }

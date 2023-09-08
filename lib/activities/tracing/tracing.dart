@@ -228,6 +228,7 @@ class _TracingState extends State<Tracing> with TickerProviderStateMixin {
                         data: dataToPass,
                         pathList: pathList,
                         scale: scale,
+                        yGuides: [95, 250],
                         width: Math.max(
                             widget.data["source"][index]['width'] ?? 300, 250),
                         size: widget.size,

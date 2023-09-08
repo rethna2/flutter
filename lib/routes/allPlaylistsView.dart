@@ -48,7 +48,9 @@ class _AllPlaylistsViewState extends State<AllPlaylistsView> {
     List topics = data["list"]
         .map((item) => {'id': item['id'], 'label': item['label']})
         .toList();
-    List grades = data["grades"];
+    List? grades = data["grades"];
+
+    print('grades, ${grades} ${topics}');
     setState(() {
       // _items = data["list"][0]["list"];
       _items = data["list"];
@@ -59,10 +61,12 @@ class _AllPlaylistsViewState extends State<AllPlaylistsView> {
           {'id': 'all', 'label': 'All Subject'},
           ...topics
         ];
-        _grades = [
-          {'id': 'all', 'label': 'All Classes'},
-          ...grades
-        ];
+        if (grades != null) {
+          _grades = [
+            {'id': 'all', 'label': 'All Classes'},
+            ...grades
+          ];
+        }
       }
     });
     return data;
@@ -71,7 +75,7 @@ class _AllPlaylistsViewState extends State<AllPlaylistsView> {
   @override
   Widget build(BuildContext context) {
     if (_items.length == 0) {
-      final args = ModalRoute.of(context)!.settings.arguments as RootID;
+      final args = ModalRoute.of(context)!.settings.arguments as RouteArgs;
       readJson(args.id);
     }
     if (_items.length == 0) {
@@ -85,6 +89,9 @@ class _AllPlaylistsViewState extends State<AllPlaylistsView> {
         appBar: MyAppBar(),
         body: SingleChildScrollView(child:
             Consumer<GlobalController>(builder: (context, controller, child) {
+          print('grade = ${controller.user['userPref']?['grade'] ?? 'all'}');
+          print(
+              'subject = ${controller.user['userPref']?['subject'] ?? 'all'}');
           String grade = controller.user['userPref']?['grade'] ?? 'all';
           String subject = controller.user['userPref']?['subject'] ?? 'all';
           print('grade = $grade');
@@ -340,9 +347,11 @@ class _AllPlaylistsViewState extends State<AllPlaylistsView> {
                                                               Navigator.pushNamed(
                                                                   context,
                                                                   '/playlist',
-                                                                  arguments:
-                                                                      RootID(item[
-                                                                          "id"]));
+                                                                  arguments: RouteArgs(
+                                                                      id: item[
+                                                                          "id"],
+                                                                      prevRoute:
+                                                                          'menu'));
                                                             },
                                                             child: Container(
                                                               padding: EdgeInsets

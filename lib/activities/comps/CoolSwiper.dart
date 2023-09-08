@@ -340,6 +340,8 @@ class _CoolSwiperCardState extends State<CoolSwiperCard>
 
   /// This moves the card with user touch/click & hold
   void _onVerticalDragUpdate(DragUpdateDetails details) {
+    //rethna
+    //return;
     setState(() {
       yDragOffset += details.delta.dy;
     });

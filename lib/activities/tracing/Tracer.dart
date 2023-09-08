@@ -6,6 +6,7 @@ import 'dart:ui';
 class Tracer extends StatefulWidget {
   const Tracer(
       {Key? key,
+      this.yGuides,
       required this.pathList,
       required this.data,
       required this.scale,
@@ -19,7 +20,7 @@ class Tracer extends StatefulWidget {
   final num scale;
   final Size size;
   final int width;
-
+  final List<double>? yGuides;
   @override
   State<Tracer> createState() => _TracerState();
 }
@@ -35,6 +36,7 @@ class _TracerState extends State<Tracer> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    print('widget.guides: ${widget.yGuides}');
     pathList = widget.pathList;
     currentx = pathList[step][0]['x'];
     currenty = pathList[step][0]['y'];
@@ -111,27 +113,31 @@ class _TracerState extends State<Tracer> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      new Center(
+      Center(
           child: Container(
               //decoration: BoxDecoration(color: Colors.lightBlue),
               width: widget.width.toDouble() * widget.scale,
               child: GestureDetector(
-                  child: CustomPaint(
-                    key: _paintKey,
-                    // size: const Size(double.infinity, double.infinity),
-                    size: Size(widget.size.width, widget.size.height - 160),
-                    painter: TracerPainter(
-                        pathList: pathList,
-                        step: step,
-                        length: length,
-                        cb: (offset) {
-                          currentx = offset.dx;
-                          currenty = offset.dy;
-                        }),
-                  ),
-                  onPanStart: _onPanStart,
-                  onPanUpdate: _onPanUpdate,
-                  onPanEnd: _onPanEnd))),
+                onPanStart: _onPanStart,
+                onPanUpdate: _onPanUpdate,
+                onPanEnd: _onPanEnd,
+                child: CustomPaint(
+                  key: _paintKey,
+                  // size: const Size(double.infinity, double.infinity),
+                  size: Size(widget.size.width, widget.size.height - 160),
+                  painter: TracerPainter(
+                      pathList: pathList,
+                      step: step,
+                      length: length,
+                      yGuides: (widget.yGuides ?? [])
+                          .map((no) => no * widget.scale)
+                          .toList(),
+                      cb: (offset) {
+                        currentx = offset.dx;
+                        currenty = offset.dy;
+                      }),
+                ),
+              ))),
     ]);
   }
 }
@@ -141,11 +147,13 @@ class TracerPainter extends CustomPainter {
       {required this.pathList,
       required this.step,
       required this.length,
-      required this.cb});
+      required this.cb,
+      this.yGuides});
   List<List> pathList;
   int step;
   double length;
   Function cb;
+  List<double>? yGuides;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -158,6 +166,7 @@ class TracerPainter extends CustomPainter {
     Path donePath = new Path();
     Path supportLine = new Path();
 
+    /*
     supportLine.moveTo(-400, 30);
     supportLine.lineTo(800, 30);
     supportLine.moveTo(-400, 180);
@@ -166,6 +175,13 @@ class TracerPainter extends CustomPainter {
     supportLine.lineTo(800, 330);
     supportLine.moveTo(-400, 480);
     supportLine.lineTo(800, 480);
+    
+    */
+    var guides = yGuides ?? [];
+    for (int i = 0; i < guides.length; i++) {
+      supportLine.moveTo(-400, guides[i]);
+      supportLine.lineTo(800, guides[i]);
+    }
 
     canvas.drawPath(supportLine, _getPaint(Colors.blue, false, 1.0));
 

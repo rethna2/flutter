@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import '../utils/dataUtils.dart' as utils;
 import '../utils/svgUtils.dart';
+import '../utils/utils.dart';
 
 class RightOne extends StatefulWidget {
   const RightOne({Key? key, required this.data, required this.activityCallback})
@@ -225,7 +226,8 @@ class _RightOneState extends State<RightOne> with TickerProviderStateMixin {
                             : (Text(words[ra[i]],
                                 style: TextStyle(
                                     fontSize: widget.data['type'] == 'letters'
-                                        ? 32
+                                        ? parseNum(
+                                            widget.data['fontSize'] ?? '3rem')
                                         : 20)))))))
     ];
   }
@@ -233,113 +235,119 @@ class _RightOneState extends State<RightOne> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     if (index >= list.length) {
-      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('You have completed this activity.',
-            style: TextStyle(fontStyle: FontStyle.italic, fontSize: 25)),
-        if (widget.data['type'] != 'image')
-          for (int i = 0; i < response.length; i++)
-            Container(
-                padding: const EdgeInsets.all(10),
-                child: Text(
-                  '${i + 1}. ${response[i]['ans']}',
-                  style: TextStyle(
-                      color: response[i]['right'] ? Colors.green : Colors.red),
-                )),
-        const SizedBox(height: 50),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-                decoration: BoxDecoration(color: Colors.white),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Text(
-                    'Score : ${response.where((item) => item['right'] == true).length} / ${response.length}',
-                    style: TextStyle(fontSize: 16))),
-            ElevatedButton(
-                onPressed: () {
-                  widget.activityCallback(
-                      {'type': 'complete', 'response': response});
-                },
-                child: Text('Next'))
-          ],
-        )
-      ]);
+      return Padding(
+          padding: EdgeInsets.all(16.0),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('You have completed this activity.',
+                style: TextStyle(fontStyle: FontStyle.italic, fontSize: 25)),
+            if (widget.data['type'] != 'image')
+              for (int i = 0; i < response.length; i++)
+                Container(
+                    padding: const EdgeInsets.all(10),
+                    child: Text(
+                      '${i + 1}. ${response[i]['ans']}',
+                      style: TextStyle(
+                          color:
+                              response[i]['right'] ? Colors.green : Colors.red),
+                    )),
+            const SizedBox(height: 50),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                    decoration: BoxDecoration(color: Colors.white),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    child: Text(
+                        'Score : ${response.where((item) => item['right'] == true).length} / ${response.length}',
+                        style: TextStyle(fontSize: 16))),
+                ElevatedButton(
+                    onPressed: () {
+                      widget.activityCallback(
+                          {'type': 'complete', 'response': response});
+                    },
+                    child: Text('Next'))
+              ],
+            )
+          ]));
     }
     List words = list[index]['words'];
     String type = widget.data['type'] ?? '';
     bool isImage = type == 'image';
-    return Stack(children: [
-      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(widget.data['title'] ??
-            'Pick the word that has the correct spelling.'),
-        SizedBox(height: 20),
-        if (widget.data['audio'] != null)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              GestureDetector(
-                  onTap: playaudio,
-                  child: Row(children: [
-                    Text('Repeat'),
-                    Icon(
-                      Icons.volume_up,
-                      color: Colors.black,
-                      size: 20.0,
-                    )
-                  ])),
-            ],
-          ),
-        if (list[index]['hint'] != null)
-          Text(list[index]['hint'], style: TextStyle(fontSize: 22)),
-        Container(
-            width: double.infinity,
-            child: (isImage || type == 'letters')
-                ? (Center(
-                    child: Wrap(
-                    children: getOptions(words),
-                  )))
-                : (Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    // width: double.infinity,
-                    children: getOptions(words),
-                  ))),
-        SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+    return Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Stack(children: [
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(widget.data['title'] ??
+                'Pick the word that has the correct spelling.'),
+            SizedBox(height: 20),
+            if (widget.data['audio'] != null)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                      onTap: playaudio,
+                      child: Row(children: [
+                        Text('Repeat'),
+                        Icon(
+                          Icons.volume_up,
+                          color: Colors.black,
+                          size: 20.0,
+                        )
+                      ])),
+                ],
+              ),
+            if (list[index]['hint'] != null)
+              Text(list[index]['hint'], style: TextStyle(fontSize: 22)),
             Container(
-                decoration: BoxDecoration(color: Colors.white),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                child: Text(
-                    'Score : ${response.where((item) => item['right'] == true).length} / ${response.length}',
-                    style: TextStyle(fontSize: 16))),
-            if (answered == true)
-              ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      isDone = true;
-                      _controller.forward(from: 0);
-                    });
-                  },
-                  child: Text('Next'))
-          ],
-        )
-      ]),
-      if (answered)
-        response[response.length - 1]['right'] == true
-            ? (new Positioned(
-                right: 0,
-                top: 100,
-                child: const Icon(Icons.check_rounded,
-                    size: 60, color: Colors.green)))
-            : (new Positioned(
-                right: 0,
-                top: 100,
-                child: const Icon(Icons.close_rounded,
-                    size: 60, color: Colors.red)))
-    ]);
+                width: double.infinity,
+                child: (isImage || type == 'letters')
+                    ? (Center(
+                        child: Wrap(
+                        children: getOptions(words),
+                      )))
+                    : (Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        // width: double.infinity,
+                        children: getOptions(words),
+                      ))),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                    decoration: BoxDecoration(color: Colors.white),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 15),
+                    child: Text(
+                        'Score : ${response.where((item) => item['right'] == true).length} / ${response.length}',
+                        style: TextStyle(fontSize: 16))),
+                if (answered == true)
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          isDone = true;
+                          _controller.forward(from: 0);
+                        });
+                      },
+                      child: Text('Next'))
+              ],
+            )
+          ]),
+          if (answered)
+            response[response.length - 1]['right'] == true
+                ? (new Positioned(
+                    right: 0,
+                    top: 100,
+                    child: const Icon(Icons.check_rounded,
+                        size: 60, color: Colors.green)))
+                : (new Positioned(
+                    right: 0,
+                    top: 100,
+                    child: const Icon(Icons.close_rounded,
+                        size: 60, color: Colors.red)))
+        ]));
   }
 }
 /*

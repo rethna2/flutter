@@ -39,7 +39,11 @@ class ApiService {
     try {
       var res = await http.post(Uri.parse('${url}profile/payment'),
           headers: {'Authorization': token, 'Content-Type': 'application/json'},
-          body: jsonEncode({'isTest': false, 'clientVersion': 'Android 1'}));
+          body: jsonEncode({
+            'isTest': false,
+            'clientVersion': 'Android PSchool',
+            'newApp': true
+          }));
       if (res.statusCode.toString()[0] == '2') {
         Map data = jsonDecode(res.body);
         return {'error': false, 'data': data};

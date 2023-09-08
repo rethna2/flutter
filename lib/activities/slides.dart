@@ -47,21 +47,32 @@ class _SlidesState extends State<Slides> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(20),
             child: CoolSwiper(
               activityCallback: widget.activityCallback,
-              audio: widget.data['audio'],
+              audio: widget.data['audio'] ?? 'none',
               audioOffset: widget.data['audioOffset'] ?? 0,
               audioWidth: widget.data['audioWidth'] ?? 2,
+              title: widget.data['title'],
               children: List.generate(
                 list.length,
                 (index) => CardContent(
                     color: Data.colors[index % Data.colors.length],
                     children: [
-                      Image.asset('assets/stockimg/${list[index][0]}.jpg',
-                          width: 160, height: 160, fit: BoxFit.contain),
+                      if (widget.data['type'] != 'text')
+                        Image.asset(
+                            widget.data['baseFolder'] != null
+                                ? 'assets/img/${widget.data['baseFolder']}${list[index][0]}.jpg'
+                                : 'assets/stockimg/${list[index][0]}.jpg',
+                            width: 160,
+                            height: 160,
+                            fit: BoxFit.contain),
                       const SizedBox(height: 40),
                       Center(
                           child: Text(list[index][1].toString(),
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 25)))
+                              style: TextStyle(
+                                  fontSize: (widget.data['type'] == 'text' &&
+                                          list[index][1].toString().length < 5)
+                                      ? 150
+                                      : 25)))
                     ]),
               ),
             )),

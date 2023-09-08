@@ -1,5 +1,5 @@
-import 'package:provider/provider.dart';
 import '../common/globalController.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:collection/collection.dart';
@@ -44,7 +44,7 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
   late num _actsCount;
   void initState() {
     super.initState();
-    //final args = ModalRoute.of(context)!.settings.arguments as RootID;
+    //final args = ModalRoute.of(context)!.settings.arguments as RouteArgs;
     //print('initState = ${args}');
   }
 
@@ -53,14 +53,23 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
     // Covering route was popped off the navigator.
   }
 
-  Future<void> readJson(RootID args) async {
+  Future<void> readJson(RouteArgs args) async {
     Map data;
     if (_tempData['id'] == args.id) {
       data = _tempData;
     } else {
+      print('playlistID ${args.id}');
       final String response =
           await rootBundle.loadString('assets/playlists/${args.id}.pschool');
       data = await json.decode(response);
+      print('data type = ${data['type']}');
+      if (data['type'] == 'curriculumIcon') {
+        Navigator.pushReplacementNamed(context, '/',
+            arguments: RouteArgs(id: data['id'], data: data));
+        return;
+      }
+      data['list'] =
+          data['list'].where((item) => item['onlyBigScreen'] != true).toList();
       _tempData = data;
     }
 
@@ -123,14 +132,16 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
   }
 
   Future<bool> _onWillPop(args) async {
+    if (args.prevRoute == 'menu') {
+      return true;
+    }
     Navigator.popAndPushNamed(context, '/');
     return false; //<-- SEE HERE
   }
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as RootID;
-    print('args = ${args.id}');
+    final args = ModalRoute.of(context)!.settings.arguments as RouteArgs;
     if (_items.length == 0) {
       readJson(args);
     }

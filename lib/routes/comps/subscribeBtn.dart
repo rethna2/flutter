@@ -53,17 +53,18 @@ class _SubscribeBtnState extends State<SubscribeBtn> {
     }
     String email = user['profile']['id'];
     Map<String, dynamic> options = {
-      'key': 'rzp_live_OVBWBRMiJoIxne',
+      // 'key': 'rzp_live_OVBWBRMiJoIxne', // old
+      'key': 'rzp_live_55qqMfbb6DT7rm',
       //'key': 'rzp_test_Y5tfJSIvCHI8Xc',
       'amount': '50000',
       'currency': 'INR',
-      'name': 'PSchool',
+      'name': 'PSchool App',
       'order_id': data['id'],
       'prefill': {'email': email, 'contact': false},
       'customer': {'email': email, 'contact': false},
       'email': email,
       'contact': false,
-      'description': 'One year subscription',
+      'description': 'One year subscription (PSchool App)',
       'readonly': {'email': 1},
     };
 

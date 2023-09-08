@@ -66,7 +66,7 @@ class _NotificationTestState extends State {
     return Scaffold(
       appBar: AppBar(
         title: Text('Notify'),
-        brightness: Brightness.dark,
+        //  brightness: Brightness.dark,
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,

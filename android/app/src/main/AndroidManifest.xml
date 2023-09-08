@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gotowisdom.pschool">
+    package="app.pschool.marathi">
    <application
-        android:label="PSchool"
+        android:label="PSchool Marathi"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">

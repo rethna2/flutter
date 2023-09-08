@@ -1,5 +1,5 @@
 flutter_icons:
   android: true
   ios: true
-  image_path: "icons/pschool_tamil.png"
+  image_path: "icons/tamil.png"
   remove_alpha_ios: true

@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../common/globalController.dart';
 import 'package:provider/provider.dart';
 
-class MyAppBar extends StatelessWidget with PreferredSizeWidget {
+class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   MyAppBar({Key? key, this.title}) : super(key: key);
   String? title;
   @override
@@ -77,7 +77,7 @@ class _MainMenu extends StatelessWidget {
           );
         } else if (item == 'All Playlists') {
           Navigator.pushNamed(context, '/allPlaylists',
-              arguments: RootID(config['allPlaylistId']));
+              arguments: RouteArgs(id: config['allPlaylistId']));
         }
       },
       child: Padding(

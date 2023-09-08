@@ -1,20 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
 import 'routes/member/member.dart';
 
 import 'routes/iconListView.dart';
 import 'routes/activityView.dart';
 import 'routes/playlistView.dart';
 import 'routes/allPlaylistsView.dart';
-//import 'routes/aboutUs/aboutUsMath.dart';
-import 'routes/aboutUs/aboutUs.dart';
-import 'routes/askToSubscribe.dart';
-import 'routes/testPage.dart';
+import 'routes/aboutUs/aboutUsTamil.dart';
 
 import 'common/theme.dart';
 import 'common/globalController.dart';
@@ -29,59 +22,39 @@ import 'package:provider/provider.dart';
 
 //import 'routes/paint.dart';
 
-const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    'high_importance_channel', // id
-    'High Importance Notifications', // title
-    description:
-        'This channel is used for important notifications.', // description
-    importance: Importance.high,
-    playSound: true);
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  print('A bg message just showed up :  ${message.messageId}');
-}
-
 Future<void> main() async {
   /*
-  runApp(MaterialApp( 
+  runApp(MaterialApp(   
       title: 'PSchool App',
       home: new Container(child: const Text("Dummy App"))));
  */
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
-
-  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
+  /*
+  String showcaseFile = 'assets/playlists/tamil.pschool';
+   const appName = "Tamil";
+  const config = {
+    'appBarTitle': 'பழகுதமிழ்',
+    'freeApp': true,
+    'allPlaylistId': 'tamil-more'
+  };
+  */
 
 /*
-  String showcaseFile = 'assets/playlists/maths-sc.pschool';
-  const appName = "PSchool Math";
+  String showcaseFile = 'assets/playlists/hindi.pschool';
+  const appName = "Hindi";
   const config = {
-    'appBarTitle': 'PSchool Math',
-    'freeApp': false,
-    'allPlaylistId': 'math-more'
+    'appBarTitle': 'PSchool Hindi',
+    'freeApp': true,
+    'allPlaylistId': 'hindi-more'
   };
- */
+  */
 
-  String showcaseFile = 'assets/playlists/pschool.pschool';
-  const appName = "Showcase";
+  String showcaseFile = 'assets/playlists/marathi.pschool';
+  const appName = "Marathi";
   const config = {
-    'appBarTitle': 'PSchool',
-    'freeApp': false,
-    'allPlaylistId': 'pschool-more'
+    'appBarTitle': 'PSchool Marathi',
+    'freeApp': true,
+    'allPlaylistId': 'marathi-more'
   };
 
   final String showcase = await rootBundle.loadString(showcaseFile);
@@ -91,7 +64,8 @@ Future<void> main() async {
       create: (context) => GlobalController(GlobalService(), context, config),
       child: OverlaySupport(
           child: MaterialApp(
-        title: 'PSchool', theme: appTheme, initialRoute: '/',
+        title: config['appBarTitle'] as String, theme: appTheme,
+        initialRoute: '/',
         // home: const MyHome(),
         onGenerateRoute: (RouteSettings routeSettings) {
           return MaterialPageRoute<void>(
@@ -110,11 +84,7 @@ Future<void> main() async {
                 case '/allPlaylists':
                   return const AllPlaylistsView();
                 case '/about':
-                  return const AboutUs();
-                case '/test2':
-                  return const TestPage();
-                case '/asktosubscribe':
-                  return AskToSubscribe();
+                  return const AboutUs(appName: appName);
                 case '/member':
                 default:
                   return const MemberPage();
@@ -136,49 +106,4 @@ Future<void> main() async {
       })
       */
       ))));
-
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    RemoteNotification? notification = message.notification;
-    AndroidNotification? android = message.notification?.android;
-    if (notification != null && android != null) {
-      flutterLocalNotificationsPlugin.show(
-          notification.hashCode,
-          notification.title,
-          notification.body,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              channel.id,
-              channel.name,
-              channelDescription: channel.description,
-              color: Colors.blue,
-              playSound: true,
-              icon: '@mipmap/launcher_icon',
-            ),
-          ));
-    }
-  });
-
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    print('A new onMessageOpenedApp event was published!');
-    RemoteNotification? notification = message.notification;
-    AndroidNotification? android = message.notification?.android;
-    if (notification != null && android != null) {
-      /*
-        showDialog(
-            context: context,
-            builder: (_) {
-              return AlertDialog(
-                title: Text(notification.title!),
-                content: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [Text(notification.body!)],
-                  ),
-                ),
-              );
-            });
-
-            */
-    }
-  });
 }

@@ -34,6 +34,8 @@ const nativeAct = [
   'tracing',
   'rightOne',
   'placeValueAbacus',
+  'dictation',
+  'phonics'
   //'numberLine'
 ];
 
@@ -116,7 +118,11 @@ class ActivityViewState extends State<ActivityView> {
     final args = ModalRoute.of(context)!.settings.arguments as ActivityPageArgs;
     if (payload['type'] == 'error') {
       Navigator.popAndPushNamed(context, '/playlist',
-          arguments: RootID(args.playlistId, args.activityId, true, true));
+          arguments: RouteArgs(
+              id: args.playlistId,
+              lastAct: args.activityId,
+              paidUser: true,
+              isBack: true));
       print('Error in loading!');
       return;
     } else if (payload['type'] == 'progress') {
@@ -140,8 +146,10 @@ class ActivityViewState extends State<ActivityView> {
         bool res = await updateProgress(payload, args, controller);
       }
       Navigator.popAndPushNamed(context, '/playlist',
-          arguments: RootID(
-              args.playlistId, args.activityId, controller.user['paidUser']));
+          arguments: RouteArgs(
+              id: args.playlistId,
+              lastAct: args.activityId,
+              paidUser: controller.user['paidUser']));
     }
   }
 
@@ -172,8 +180,13 @@ class ActivityViewState extends State<ActivityView> {
   }
 
   Future<bool> _onWillPop(args) async {
+    //return true;
     Navigator.popAndPushNamed(context, '/playlist',
-        arguments: RootID(args.playlistId, args.activityId, true, true));
+        arguments: RouteArgs(
+            id: args.playlistId,
+            lastAct: args.activityId,
+            paidUser: true,
+            isBack: true));
     return false; //<-- SEE HERE
   }
 
@@ -200,12 +213,12 @@ class ActivityViewState extends State<ActivityView> {
                 children: [
                   Container(
                     width: double.infinity,
-                    height: 10,
+                    height: 5,
                     color: Colors.white,
                   ),
                   Container(
                     width: this.progress * width / 100,
-                    height: 10,
+                    height: 5,
                     color: Colors.blue,
                   ),
                 ],
@@ -237,8 +250,11 @@ class ActivityViewState extends State<ActivityView> {
                             print('WebResourceError $error');
                             // this.webController.reload();
                             Navigator.popAndPushNamed(context, '/playlist',
-                                arguments: RootID(args.playlistId,
-                                    args.activityId, true, true));
+                                arguments: RouteArgs(
+                                    id: args.playlistId,
+                                    lastAct: args.activityId,
+                                    paidUser: true,
+                                    isBack: true));
                           },
                           onProgress: (int progress) {
                             if (progress == 100) {
@@ -252,8 +268,11 @@ class ActivityViewState extends State<ActivityView> {
                               } catch (e) {
                                 //this.webController.reload();
                                 Navigator.popAndPushNamed(context, '/playlist',
-                                    arguments: RootID(args.playlistId,
-                                        args.activityId, true, true));
+                                    arguments: RouteArgs(
+                                        id: args.playlistId,
+                                        lastAct: args.activityId,
+                                        paidUser: true,
+                                        isBack: true));
                                 print('Error in loading!');
                               }
                             }
@@ -279,6 +298,7 @@ class ActivityViewState extends State<ActivityView> {
                           },
                         ))
                       : (Container(
+                          padding: EdgeInsets.only(top: 10.0),
                           decoration: new BoxDecoration(
                               color: Theme.of(context).colorScheme.surface),
                           width: double.infinity,

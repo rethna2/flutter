@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import './globalService.dart';
 import '../../utils/filesystem.dart';
-import '../../utils/utils.dart';
 import 'dart:convert';
 import './cognitoService.dart';
 import './apiService.dart';
+//import 'package:package_info_plus/package_info_plus.dart';
 
-import 'package:http/http.dart' as http;
-
-class RootID {
+class RouteArgs {
   final String id;
   String? lastAct;
   bool? paidUser;
   bool? isBack;
-  RootID(this.id, [this.lastAct, this.paidUser, this.isBack]);
+  Map? data;
+  String? prevRoute;
+  RouteArgs(
+      {required this.id,
+      this.lastAct,
+      this.paidUser,
+      this.isBack,
+      this.data,
+      this.prevRoute});
 }
 
 class GlobalController with ChangeNotifier {
@@ -36,7 +42,7 @@ class GlobalController with ChangeNotifier {
   late Map user;
   late Map config;
   String version = "1.0.0";
-
+  //late PackageInfo packageInfo;
   ThemeMode get themeMode => _themeMode;
 
   Future<void> loadSettings() async {
@@ -53,6 +59,7 @@ class GlobalController with ChangeNotifier {
       // res = res[id] ?? {};
     }
     responses = res;
+    //packageInfo = await PackageInfo.fromPlatform();
     notifyListeners();
   }
 

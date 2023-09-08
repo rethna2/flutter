@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import '../utils/dataUtils.dart' as utils;
 import 'comps/CoolSwiper.dart';
+import '../utils/utils.dart';
 
 class Slides2 extends StatefulWidget {
   const Slides2({Key? key, required this.data, required this.activityCallback})
@@ -118,6 +119,8 @@ class _Slides2State extends State<Slides2> {
 
   @override
   Widget build(BuildContext context) {
+    bool noImage =
+        widget.data['images'] == null && widget.data['imageArr'] == null;
     if (widget.data['displayType'] == 'steps') {
       return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
@@ -144,10 +147,14 @@ class _Slides2State extends State<Slides2> {
                       ];
                     } else if (list[index] is Map &&
                         list[index]['img'] != null) {
-                      data = [
-                        'assets/${widget.data['images']}/${list[index]['img']}.jpg',
-                        list[index]['text']
-                      ];
+                      if (widget.data['images'] == 'inline') {
+                        data = [list[index]['img'], list[index]['text']];
+                      } else {
+                        data = [
+                          'assets/${widget.data['images']}/${list[index]['img']}.jpg',
+                          list[index]['text']
+                        ];
+                      }
                     } else {
                       data = [
                         'assets/${widget.data['images']}/${index + 1}.jpg',
@@ -157,18 +164,21 @@ class _Slides2State extends State<Slides2> {
                     return CardContent(
                       color: Data.colors[index % Data.colors.length],
                       children: [
-                        Image.asset(
-                            data[0].indexOf('.') == -1
-                                ? 'assets/stockimg/${data[0]}.jpg'
-                                : data[0],
-                            width: 160,
-                            height: 160,
-                            fit: BoxFit.contain),
+                        if (!noImage)
+                          Image.asset(
+                              data[0].indexOf('.') == -1
+                                  ? 'assets/stockimg/${data[0]}.jpg'
+                                  : data[0],
+                              width: 160,
+                              height: 160,
+                              fit: BoxFit.contain),
                         const SizedBox(height: 40),
                         Center(
                             child: Text(data[1].toString(),
                                 textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 18)))
+                                style: TextStyle(
+                                    fontSize: parseNum(
+                                        widget.data['fontSize'] ?? '18'))))
                       ],
                     );
                   },
@@ -207,7 +217,11 @@ class _Slides2State extends State<Slides2> {
                                     ? list[index][i]['text']
                                     : list[index][i],
                                 textAlign: TextAlign.left,
-                                style: TextStyle(fontSize: 18)))).toList();
+                                style: TextStyle(
+                                    fontSize: (list[index][i] is Map &&
+                                            list[index][i]['type'] == 'title')
+                                        ? 40
+                                        : 18)))).toList();
 
                     return CardContent(
                         color: Data.colors[index % Data.colors.length],
