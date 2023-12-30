@@ -17,6 +17,7 @@ class Slides2 extends StatefulWidget {
 
 class _Slides2State extends State<Slides2> {
   int index = 0;
+  int subIndex = 0;
   bool isDone = false;
   bool answered = false;
   late List list;
@@ -191,46 +192,61 @@ class _Slides2State extends State<Slides2> {
     if (widget.data['displayType'] == 'custom') {
       print('custom = $list');
       return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        body: SafeArea(
-          child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: CoolSwiper(
-                activityCallback: widget.activityCallback,
-                audio: widget.data['audio'] ?? 'none',
-                audioOffset: widget.data['audioOffset'] ?? 0,
-                audioWidth: widget.data['audioWidth'] ?? 2,
-                audioOffsets: widget.data['audioOffsets'],
-                images: widget.data['images'],
-                imageArr: widget.data['imageArr'],
-                title: 'Read and swipe the cards!',
-                children: List.generate(
-                  list.length,
-                  (index) {
-                    List<Widget> data = List<Widget>.generate(
-                        list[index].length,
-                        (i) => Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 10),
-                            child: Text(
-                                list[index][i] is Map
-                                    ? list[index][i]['text']
-                                    : list[index][i],
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                    fontSize: (list[index][i] is Map &&
-                                            list[index][i]['type'] == 'title')
-                                        ? 40
-                                        : 18)))).toList();
+          backgroundColor: Theme.of(context).colorScheme.background,
+          body: SafeArea(
+              child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(children: [
+                    ConstrainedBox(
+                        constraints: BoxConstraints(
+                            minHeight: 300, minWidth: double.infinity),
+                        child: Container(
+                            color: const Color(0xf6f6f8ff),
+                            child: Column(
+                                children: List<Widget>.generate(
+                                    subIndex + 1,
+                                    (i) => Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 10),
+                                        child: Text(
+                                            list[index][i] is Map
+                                                ? list[index][i]['text']
+                                                : list[index][i],
+                                            textAlign: TextAlign.left,
+                                            style: TextStyle(
+                                                fontSize:
+                                                    (list[index][i] is Map &&
+                                                            list[index][i]
+                                                                    ['type'] ==
+                                                                'title')
+                                                        ? 30
+                                                        : 18)))).toList()))),
+                    Align(
+                        alignment: Alignment.topRight,
+                        child: ElevatedButton(
+                            onPressed: () {
+                              //onNext();
 
-                    return CardContent(
-                        color: Data.colors[index % Data.colors.length],
-                        children: data);
-                  },
-                ),
-              )),
-        ),
-      );
+                              if (list[index].length - 1 == subIndex) {
+                                if (index >= list.length - 1) {
+                                  widget.activityCallback({
+                                    'type': 'complete',
+                                    'response': response
+                                  });
+                                } else {
+                                  setState(() {
+                                    index = index + 1;
+                                    subIndex = 0;
+                                  });
+                                }
+                              } else {
+                                setState(() {
+                                  subIndex = subIndex + 1;
+                                });
+                              }
+                            },
+                            child: Text('Next')))
+                  ]))));
     }
     return SingleChildScrollView(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

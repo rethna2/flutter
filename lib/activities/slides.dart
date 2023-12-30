@@ -71,7 +71,7 @@ class _SlidesState extends State<Slides> with TickerProviderStateMixin {
                               style: TextStyle(
                                   fontSize: (widget.data['type'] == 'text' &&
                                           list[index][1].toString().length < 5)
-                                      ? 150
+                                      ? 80
                                       : 25)))
                     ]),
               ),

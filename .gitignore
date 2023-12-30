@@ -36,8 +36,12 @@ migrate_working_dir/
 /assets/
 /assets_math/
 /assets_hindi/
+/assets_marathi/
 /assets_bengali/
 /assets_tamil/
+/assets_malayalam/
+/assets_telugu/
+/assets_kannada/
 /assets_pschool/
 /webNextjs/
 

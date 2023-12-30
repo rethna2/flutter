@@ -181,38 +181,40 @@ class _DictationState extends State<Dictation> with TickerProviderStateMixin {
                   child: Text('Next'))
           ],
         ),
-        Keyboard(onPick: (key) {
-          print('key = $key');
-          if (answered) {
-            return;
-          }
-          String cur = typeInProg;
-          if (key.length == 1) {
-            cur += key;
-          } else if (key == 'Space') {
-            cur += ' ';
-          } else if (key == "DEL") {
-            if (cur.length > 0) {
-              cur = cur.substring(0, cur.length - 1);
-            }
-          } else if (key == 'Done') {
-            if (cur.length != 0) {
+        Keyboard(
+            lang: widget.data['lang'] ?? 'en',
+            onPick: (key) {
+              print('key = $key');
+              if (answered) {
+                return;
+              }
+              String cur = typeInProg;
+              if (key == 'Space') {
+                cur += ' ';
+              } else if (key == "DEL") {
+                if (cur.length > 0) {
+                  cur = cur.substring(0, cur.length - 1);
+                }
+              } else if (key == 'Done') {
+                if (cur.length != 0) {
+                  setState(() {
+                    String ans = cur.split(' ').join('').toLowerCase();
+                    bool right = ans == list[index].toLowerCase();
+                    response = [
+                      ...response,
+                      {'ans': ans, 'right': right}
+                    ];
+                    answered = true;
+                  });
+                }
+                return;
+              } else {
+                cur += key;
+              }
               setState(() {
-                String ans = cur.split(' ').join('').toLowerCase();
-                bool right = ans == list[index].toLowerCase();
-                response = [
-                  ...response,
-                  {'ans': ans, 'right': right}
-                ];
-                answered = true;
+                typeInProg = cur;
               });
-            }
-            return;
-          }
-          setState(() {
-            typeInProg = cur;
-          });
-        })
+            })
       ]),
       if (answered)
         response[response.length - 1]['right'] == true

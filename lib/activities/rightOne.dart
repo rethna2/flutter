@@ -205,7 +205,7 @@ class _RightOneState extends State<RightOne> with TickerProviderStateMixin {
                     margin:
                         const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
                     padding:
-                        const EdgeInsets.symmetric(vertical: 15, horizontal: 0),
+                        const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                     decoration: getBoxDecoration(words[ra[i]]),
                     child: Center(
                         child: isImage == true
@@ -220,8 +220,8 @@ class _RightOneState extends State<RightOne> with TickerProviderStateMixin {
                                             SVGImg(svgList: [words[ra[i]]]))))
                                 : Image.asset(
                                     'assets/stockimg/${words[ra[i]]}.jpg',
-                                    width: 130,
-                                    height: 130,
+                                    width: 160,
+                                    height: 160,
                                     fit: BoxFit.contain))
                             : (Text(words[ra[i]],
                                 style: TextStyle(

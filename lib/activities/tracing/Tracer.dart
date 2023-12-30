@@ -32,6 +32,7 @@ class _TracerState extends State<Tracer> with TickerProviderStateMixin {
   late double currenty;
   double length = 0;
   bool isPanning = false;
+  bool nextSwitch = false;
   GlobalKey _paintKey = new GlobalKey();
 
   @override
@@ -83,6 +84,13 @@ class _TracerState extends State<Tracer> with TickerProviderStateMixin {
     if (isPanning == false) {
       return;
     }
+    if (nextSwitch) {
+      setState(() {
+        length = 0;
+        nextSwitch = false;
+      });
+      return;
+    }
     if (Math.sqrt(x * x + y * y) < 20) {
       setState(() {
         // length = length + sqrt(x * x + y * y).toInt();
@@ -96,6 +104,7 @@ class _TracerState extends State<Tracer> with TickerProviderStateMixin {
           } else {
             step = step + 1;
             length = 0;
+            nextSwitch = true;
           }
         }
       });

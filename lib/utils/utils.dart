@@ -42,7 +42,7 @@ double parseNum(String str) {
   RegExpMatch? matches = exp.firstMatch(str);
   double no = double.parse(matches?.group(0) ?? '1');
   if (str.contains('rem')) {
-    return no * 16;
+    return no * 12;
   } else {
     return no;
   }

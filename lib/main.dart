@@ -31,14 +31,13 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   /*
   String showcaseFile = 'assets/playlists/tamil.pschool';
-   const appName = "Tamil";
+  const appName = "Tamil";
   const config = {
     'appBarTitle': 'பழகுதமிழ்',
     'freeApp': true,
     'allPlaylistId': 'tamil-more'
   };
-  */
-
+*/
 /*
   String showcaseFile = 'assets/playlists/hindi.pschool';
   const appName = "Hindi";
@@ -47,8 +46,9 @@ Future<void> main() async {
     'freeApp': true,
     'allPlaylistId': 'hindi-more'
   };
-  */
+*/
 
+/*
   String showcaseFile = 'assets/playlists/marathi.pschool';
   const appName = "Marathi";
   const config = {
@@ -56,7 +56,34 @@ Future<void> main() async {
     'freeApp': true,
     'allPlaylistId': 'marathi-more'
   };
+  */
 
+  String showcaseFile = 'assets/playlists/computer-3.pschool';
+  const appName = "PSchool";
+  const config = {
+    'appBarTitle': 'PSchool',
+    'freeApp': false,
+    'allPlaylistId': 'adverb-5'
+  };
+
+/*
+  String showcaseFile = 'assets/playlists/malayalam.pschool';
+  const appName = "Malayalam";
+  const config = {
+    'appBarTitle': 'PSchool Malayalam',
+    'freeApp': true,
+    'allPlaylistId': 'malayalam-more'
+  };
+*/
+/*
+  String showcaseFile = 'assets/playlists/bengali.pschool';
+  const appName = "Bengali";
+  const config = {
+    'appBarTitle': 'PSchool Bengali',
+    'freeApp': true,
+    'allPlaylistId': 'bengali-more'
+  };
+*/
   final String showcase = await rootBundle.loadString(showcaseFile);
   final data = await json.decode(showcase);
 
