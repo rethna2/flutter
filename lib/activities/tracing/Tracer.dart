@@ -20,7 +20,7 @@ class Tracer extends StatefulWidget {
   final num scale;
   final Size size;
   final int width;
-  final List<double>? yGuides;
+  final List? yGuides;
   @override
   State<Tracer> createState() => _TracerState();
 }
@@ -28,19 +28,17 @@ class Tracer extends StatefulWidget {
 class _TracerState extends State<Tracer> with TickerProviderStateMixin {
   int step = 0;
   late List<List> pathList;
-  late double currentx;
-  late double currenty;
+  late Offset offset;
   double length = 0;
   bool isPanning = false;
   bool nextSwitch = false;
+  bool doneLetter = false;
   GlobalKey _paintKey = new GlobalKey();
 
   @override
   void initState() {
-    print('widget.guides: ${widget.yGuides}');
     pathList = widget.pathList;
-    currentx = pathList[step][0]['x'];
-    currenty = pathList[step][0]['y'];
+    offset = Offset(pathList[step][0]['x'], pathList[step][0]['y']);
     super.initState();
   }
 
@@ -49,6 +47,7 @@ class _TracerState extends State<Tracer> with TickerProviderStateMixin {
   void didUpdateWidget(old) {
     setState(() {
       pathList = widget.pathList;
+      offset = Offset(pathList[step][0]['x'], pathList[step][0]['y']);
       step = 0;
       length = 0;
     });
@@ -62,15 +61,15 @@ class _TracerState extends State<Tracer> with TickerProviderStateMixin {
 
   Offset getOffset(event, _paintKey) {
     RenderBox referenceBox = _paintKey.currentContext.findRenderObject();
-    Offset offset = referenceBox.globalToLocal(event.globalPosition);
-    return offset;
+    Offset temp = referenceBox.globalToLocal(event.globalPosition);
+    return temp;
   }
 
   void _onPanStart(DragStartDetails start) {
     Offset pos = getOffset(start, _paintKey);
-    double diffX = currentx - pos.dx;
-    double diffY = currenty - pos.dy;
-    if (Math.sqrt(diffX * diffX + diffY * diffY) < 40) {
+    double dist = (pos - offset).distance;
+    print('onPanStart $dist, $offset, $pos');
+    if (dist < 40) {
       setState(() {
         isPanning = true;
       });
@@ -78,12 +77,10 @@ class _TracerState extends State<Tracer> with TickerProviderStateMixin {
   }
 
   void _onPanUpdate(DragUpdateDetails update) {
-    Offset pos = getOffset(update, _paintKey);
-    double x = pos.dx - currentx;
-    double y = pos.dy - currenty;
     if (isPanning == false) {
       return;
     }
+
     if (nextSwitch) {
       setState(() {
         length = 0;
@@ -91,18 +88,32 @@ class _TracerState extends State<Tracer> with TickerProviderStateMixin {
       });
       return;
     }
-    if (Math.sqrt(x * x + y * y) < 20) {
+
+    Offset pos = getOffset(update, _paintKey);
+    double dist = (pos - offset).distance;
+    if (dist < 20) {
       setState(() {
         // length = length + sqrt(x * x + y * y).toInt();
         //length += 2;
-        length +=
-            getNextPos(length, pos, currentx, currenty, pathList[step]).ceil();
-        if (length >= widget.data['lengths'][step] - 3) {
+        Map? temp = getNextPos(length, pos, offset, pathList[step]);
+        if (temp == null) {
+          return;
+        }
+        if (temp['val'] >= 0) {
+          length += temp['val'];
+          offset = temp['offset'];
+        } else {
+          return;
+        }
+        //print('length = ${length * widget.scale}, ${widget.data['lengths'][step]}');
+        print('length = ${widget.data['lengths']}');
+        if (length >= widget.data['lengths'][step] - 10) {
           if (step >= pathList.length - 1) {
-            widget.done();
-            length = 0;
+            doneLetter = true;
           } else {
             step = step + 1;
+            // isPanning = false;
+            offset = Offset(pathList[step][0]['x'], pathList[step][0]['y']);
             length = 0;
             nextSwitch = true;
           }
@@ -123,30 +134,58 @@ class _TracerState extends State<Tracer> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Column(children: [
       Center(
-          child: Container(
-              //decoration: BoxDecoration(color: Colors.lightBlue),
-              width: widget.width.toDouble() * widget.scale,
-              child: GestureDetector(
-                onPanStart: _onPanStart,
-                onPanUpdate: _onPanUpdate,
-                onPanEnd: _onPanEnd,
-                child: CustomPaint(
-                  key: _paintKey,
-                  // size: const Size(double.infinity, double.infinity),
-                  size: Size(widget.size.width, widget.size.height - 160),
-                  painter: TracerPainter(
-                      pathList: pathList,
-                      step: step,
-                      length: length,
-                      yGuides: (widget.yGuides ?? [])
-                          .map((no) => no * widget.scale)
-                          .toList(),
-                      cb: (offset) {
-                        currentx = offset.dx;
-                        currenty = offset.dy;
-                      }),
-                ),
-              ))),
+          child: Stack(children: [
+        Container(
+            //decoration: BoxDecoration(color: Colors.lightBlue),
+            width: widget.width.toDouble() * widget.scale,
+            child: GestureDetector(
+              onPanStart: _onPanStart,
+              onPanUpdate: _onPanUpdate,
+              onPanEnd: _onPanEnd,
+              child: CustomPaint(
+                key: _paintKey,
+                // size: const Size(double.infinity, double.infinity),
+                size: Size(widget.size.width, widget.size.height - 160),
+                painter: TracerPainter(
+                    pathList: pathList,
+                    step: step,
+                    length: length,
+                    yGuides: (widget.yGuides ?? [])
+                        .map((no) => no * widget.scale as double)
+                        .toList(),
+                    cb: (offset2) {}),
+              ),
+            )),
+        if (doneLetter)
+          Positioned(
+              bottom: 0,
+              right: 0,
+              child: Row(
+                children: [
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          widget.done(-1);
+                          length = 0;
+                          doneLetter = false;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xff4fa7f7)),
+                      child: Text('Repeat')),
+                  const SizedBox(width: 20),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          widget.done();
+                          length = 0;
+                          doneLetter = false;
+                        });
+                      },
+                      child: Text('Next'))
+                ],
+              ))
+      ])),
     ]);
   }
 }
@@ -228,36 +267,55 @@ Offset? paintCursor(canvas, path, length) {
   return off;
 }
 
-double getNextPos(travel, p, currentx, currenty, pathData) {
+Map? getNextPos(travel, p, prevPt, pathData) {
   Path path = new Path();
   paintSvgData(path, pathData);
   List<PathMetric> metrics = path.computeMetrics().toList();
-  const double bw = 50;
-  double val = 50;
+  const double bw = 30;
+  double val = 30;
   // double tempTravel = 0;
-  for (var i = bw / 2 * -1; i < bw; i = i + 3) {
+  Offset? pos;
+  List dists = [];
+  List dists2 = [];
+  for (var i = -15; i <= bw - 15; i = i + 2) {
     if (i == 0) {
-      continue;
+      //continue;
     }
     var fringe = travel + i;
+    if (fringe < 0) {
+      continue;
+    }
     Tangent? tangent = metrics[0].getTangentForOffset(fringe);
+
     if (tangent != null) {
-      Offset pos = tangent.position;
-      double diffx = pos.dx - p.dx;
-      double diffy = pos.dy - p.dy;
-      double diff = Math.sqrt(diffx * diffx + diffy * diffy);
-      if (diff < val && diff != 0) {
+      pos = tangent.position;
+      double distance = (pos - p).distance;
+      dists.add(pos);
+      dists2.add(distance);
+      if (distance < val) {
         //val = diff * i / i.abs();
-        val = diff;
+        val = distance;
         //tempTravel = fringe;
       }
     }
   }
+  if (pos != null) {
+    double m1 = Math.atan2(p.dy - prevPt.dy, p.dx - prevPt.dx);
+    double m2 = Math.atan2(pos.dy - prevPt.dy, pos.dx - prevPt.dx);
+    double dist1 = (p - prevPt).distance;
+    double dist2 = (pos - prevPt).distance;
+    double diff = (m1 - m2).abs();
+    print('m1 = $m1, $m2, $diff');
+
+    if (diff > 3 && diff < 5) return null;
+  }
+  return {'val': val, 'offset': pos};
+/*
   if (val < bw) {
     return val;
   } else {
     return 0;
-  }
+  }*/
 }
 
 Paint _getPaint(color, [isFill, strokeWidth]) {

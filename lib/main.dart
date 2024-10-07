@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'routes/member/member.dart';
+/*
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+*/
 
 import 'routes/iconListView.dart';
 import 'routes/activityView.dart';
 import 'routes/playlistView.dart';
 import 'routes/allPlaylistsView.dart';
-import 'routes/aboutUs/aboutUsTamil.dart';
 
+//import 'routes/aboutUs/aboutUsTamil.dart';
+//import 'routes/aboutUs/aboutUs.dart';
+import 'routes/aboutUs/aboutUsMath.dart';
+
+/*
+import 'routes/member/member.dart';
+import 'routes/askToSubscribe.dart';
+*/
 import 'common/theme.dart';
 import 'common/globalController.dart';
+//import 'common/firebaseApi.dart';
 import 'common/globalService.dart';
-
-import 'common/notificationTest.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 import 'dart:convert';
 
 import 'package:provider/provider.dart';
+
+import 'config.dart';
 
 //import 'routes/paint.dart';
 
@@ -30,69 +40,20 @@ Future<void> main() async {
  */
   WidgetsFlutterBinding.ensureInitialized();
   /*
-  String showcaseFile = 'assets/playlists/tamil.pschool';
-  const appName = "Tamil";
-  const config = {
-    'appBarTitle': 'பழகுதமிழ்',
-    'freeApp': true,
-    'allPlaylistId': 'tamil-more'
-  };
-*/
-/*
-  String showcaseFile = 'assets/playlists/hindi.pschool';
-  const appName = "Hindi";
-  const config = {
-    'appBarTitle': 'PSchool Hindi',
-    'freeApp': true,
-    'allPlaylistId': 'hindi-more'
-  };
-*/
-
-/*
-  String showcaseFile = 'assets/playlists/marathi.pschool';
-  const appName = "Marathi";
-  const config = {
-    'appBarTitle': 'PSchool Marathi',
-    'freeApp': true,
-    'allPlaylistId': 'marathi-more'
-  };
+  await Firebase.initializeApp();
+  await FirebaseApi().initNotifications();
   */
-
-  String showcaseFile = 'assets/playlists/computer-3.pschool';
-  const appName = "PSchool";
-  const config = {
-    'appBarTitle': 'PSchool',
-    'freeApp': false,
-    'allPlaylistId': 'adverb-5'
-  };
-
-/*
-  String showcaseFile = 'assets/playlists/malayalam.pschool';
-  const appName = "Malayalam";
-  const config = {
-    'appBarTitle': 'PSchool Malayalam',
-    'freeApp': true,
-    'allPlaylistId': 'malayalam-more'
-  };
-*/
-/*
-  String showcaseFile = 'assets/playlists/bengali.pschool';
-  const appName = "Bengali";
-  const config = {
-    'appBarTitle': 'PSchool Bengali',
-    'freeApp': true,
-    'allPlaylistId': 'bengali-more'
-  };
-*/
-  final String showcase = await rootBundle.loadString(showcaseFile);
+  final String showcase =
+      await rootBundle.loadString(config['showcaseFile'] as String);
   final data = await json.decode(showcase);
 
   runApp(ChangeNotifierProvider(
-      create: (context) => GlobalController(GlobalService(), context, config),
+      create: (context) => GlobalController(GlobalService(), context),
       child: OverlaySupport(
           child: MaterialApp(
         title: config['appBarTitle'] as String, theme: appTheme,
         initialRoute: '/',
+        navigatorKey: navigatorKey,
         // home: const MyHome(),
         onGenerateRoute: (RouteSettings routeSettings) {
           return MaterialPageRoute<void>(
@@ -106,15 +67,20 @@ Future<void> main() async {
                   return const PlaylistView();
                 case '/activity':
                   return const ActivityView();
-                case '/test':
-                  return const NotificationTest();
                 case '/allPlaylists':
                   return const AllPlaylistsView();
                 case '/about':
-                  return const AboutUs(appName: appName);
+                  // return const AboutUs(appName: appName);
+                  return AboutUs();
+                /*
+                case '/asktosubscribe':
+                  return AskToSubscribe();
                 case '/member':
                 default:
-                  return const MemberPage();
+                  return MemberPage();
+                  */
+                default:
+                  return IconListView(data: data as Map);
               }
             },
           );

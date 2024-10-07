@@ -3,10 +3,17 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class Button extends StatelessWidget {
-  Button({Key? key, required this.label, required this.onClick})
+  Button(
+      {Key? key,
+      required this.label,
+      required this.onClick,
+      this.color,
+      this.bgColor})
       : super(key: key);
   String label;
   Function onClick;
+  Color? color;
+  Color? bgColor;
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +21,7 @@ class Button extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         //fixedSize: Size(150, 50),
         minimumSize: Size(120, 35),
-        onPrimary: Colors.black87,
-        primary: Color(0xff4fa7f7),
+        backgroundColor: bgColor ?? Color.fromARGB(255, 32, 68, 100),
       ),
       onPressed: () {
         onClick();

@@ -111,13 +111,25 @@ class _PhonicsState extends State<Phonics> with TickerProviderStateMixin {
       //return;
     }
     List chars = [];
+    List sounds = [];
     if (widget.data['type'] == 'words') {
       GraphemeSplitter splitter = GraphemeSplitter();
-      chars = splitter
-          .splitGraphemes(list[0][index])
-          .toList()
-          .where((char) => char.trim() != '')
-          .toList();
+      if (list[0][index].indexOf('|') == -1) {
+        chars = splitter
+            .splitGraphemes(list[0][index])
+            .toList()
+            .where((char) => char.trim() != '')
+            .toList();
+      } else {
+        chars = list[0][index]
+            .substring(list[0][index].indexOf('|') + 1)
+            .trim()
+            .split('-')
+            .toList();
+      }
+
+      sounds = [...chars];
+      sounds = sounds.map((char) => char == 'k' ? 'c' : char).toList();
     }
     setState(() {
       selectedIndex = index;
@@ -127,7 +139,7 @@ class _PhonicsState extends State<Phonics> with TickerProviderStateMixin {
     });
     try {
       if (widget.data['type'] == 'words') {
-        List pos = chars.map((char) => units.indexOf(char)).toList();
+        List pos = sounds.map((sound) => units.indexOf(sound)).toList();
         for (int i = 0; i < pos.length; i++) {
           await player2.seek(Duration(milliseconds: pos[i] * 1000));
           player2.play();
@@ -200,7 +212,6 @@ class _PhonicsState extends State<Phonics> with TickerProviderStateMixin {
                                   (j) => GestureDetector(
                                       onTap: (id) {
                                         return () {
-                                          print('id = $id');
                                           playaudio(id);
                                         };
                                       }(counter++),
@@ -211,10 +222,9 @@ class _PhonicsState extends State<Phonics> with TickerProviderStateMixin {
                                                   BoxConstraints(minWidth: 55),
                                               child: Container(
                                                   height: 55,
-                                                  margin:
-                                                      const EdgeInsets.symmetric(
-                                                          vertical: 2,
-                                                          horizontal: 2),
+                                                  margin: const EdgeInsets.symmetric(
+                                                      vertical: 2,
+                                                      horizontal: 2),
                                                   padding:
                                                       const EdgeInsets.symmetric(
                                                           vertical: 2,
@@ -228,7 +238,8 @@ class _PhonicsState extends State<Phonics> with TickerProviderStateMixin {
                                                               0xff1b75b7)
                                                           : Colors.white),
                                                   child: Center(
-                                                      child: Text(list[i][j],
+                                                      child: Text(
+                                                          list[i][j].indexOf('|') != -1 ? list[i][j].substring(0, list[i][j].indexOf('|')) : list[i][j],
                                                           style: TextStyle(fontSize: 20, color: selectedIndex == counter - 1 ? Colors.white : Colors.black))))))),
                                 ),
                               )))),
@@ -259,7 +270,6 @@ class _PhonicsState extends State<Phonics> with TickerProviderStateMixin {
                   children: [
                     ElevatedButton(
                         onPressed: () {
-                          print('onPress ${list[0].length}, $selectedIndex');
                           if (totalCount <= selectedIndex + 1) {
                             widget.activityCallback(
                                 {'type': 'complete', 'response': {}});

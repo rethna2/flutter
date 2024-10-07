@@ -204,8 +204,8 @@ class _RightOneState extends State<RightOne> with TickerProviderStateMixin {
                     height: isSquare ? 130 : null,
                     margin:
                         const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+                    padding: EdgeInsets.symmetric(
+                        vertical: isSquare ? 0 : 10, horizontal: 0),
                     decoration: getBoxDecoration(words[ra[i]]),
                     child: Center(
                         child: isImage == true

@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'comps/MyAppBar.dart';
 import '../common/globalController.dart';
 import './comps/social.dart';
+import '../utils/vars.dart';
 
 /*
 class IconListView extends StatelessWidget {
@@ -71,6 +72,11 @@ class IconListView extends StatelessWidget {
           } else {
             items = data['list'].toList();
           }
+          print('grade = $grade, ${grade.runtimeType}');
+
+          if (grade == 'null') {
+            grade = 'g4';
+          }
 
           /*
           final List items = data['list']
@@ -81,8 +87,9 @@ class IconListView extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               width: double.infinity,
               decoration: const BoxDecoration(
-                color: Colors.white,
-              ),
+                  // color: Colors.white,
+                  //color: const Color(0xffeeeeee),
+                  color: lc2),
               child: Column(children: [
                 Container(
                     width: double.infinity,
@@ -119,9 +126,9 @@ class IconListView extends StatelessWidget {
                                 // After selecting the desired option,it will
                                 // change button value to selected value
                                 onChanged: (newValue) {
-                                  print('gradeChange = $newValue');
                                   controller.updateUserPref(
                                       'grade', newValue.toString());
+                                  controller.updateUserPref('subject', 'all');
                                 },
                               ))
                       ],
@@ -161,7 +168,7 @@ class IconListView extends StatelessWidget {
                       child: const Text("More Activities",
                           style: TextStyle(fontSize: 24)),
                       style: ElevatedButton.styleFrom(
-                          primary: Colors.purple,
+                          backgroundColor: Colors.purple,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 60, vertical: 15))),
                 const Social()

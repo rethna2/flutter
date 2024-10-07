@@ -40,19 +40,16 @@ class _Slides2State extends State<Slides2> {
               if (unit is String) {
                 return unit;
               } else if (unit['type'] == 'reusable') {
-                print('yes reusable');
                 return widget.data['reusables'][unit['id']].toList();
               }
               return unit;
             }).toList();
-            print('success till');
             List temp2 = [];
             temp.forEach((item) => item is List
                 ? item.forEach((unit) => temp2.add(unit))
                 : temp2.add(item));
             //temp = temp.expand((i) => i).toList();
             // temp = temp.reduce((value, element) => value + element);
-            print('but failed here');
             return temp2;
           }
         }).toList();
@@ -118,6 +115,34 @@ class _Slides2State extends State<Slides2> {
     super.dispose();
   }
 
+  Widget renderItem(item) {
+    RegExp exp = RegExp(r"<[^>]*>", multiLine: true, caseSensitive: true);
+    if (item is Map) {
+      switch (item['type']) {
+        case 'title':
+          return Text(item['text'],
+              textAlign: TextAlign.center, style: TextStyle(fontSize: 30));
+        case 'html':
+          List arr = item['text'].split('<br>');
+          arr = arr.where((item) => item.trim() != '').toList();
+          return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (int i = 0; i < arr.length; i++)
+                  Text(arr[i].replaceAll(exp, ''),
+                      style: TextStyle(fontSize: 18))
+              ]);
+        default:
+          return Text(item['text'],
+              textAlign: TextAlign.left, style: TextStyle(fontSize: 18));
+      }
+    }
+
+    return Align(
+        alignment: Alignment.centerLeft,
+        child: Text(item, style: TextStyle(fontSize: 18)));
+  }
+
   @override
   Widget build(BuildContext context) {
     bool noImage =
@@ -138,10 +163,12 @@ class _Slides2State extends State<Slides2> {
                 imageArr: widget.data['imageArr'],
                 title: 'Read and swipe the cards!',
                 children: List.generate(
-                  list.length,
+                  list.length + 1,
                   (index) {
-                    List data;
-                    if (widget.data['imageArr'] != null) {
+                    List? data;
+                    if (index == list.length) {
+                      //do nothing
+                    } else if (widget.data['imageArr'] != null) {
                       data = [
                         'assets/${widget.data['images']}/${widget.data['imageArr'][index]}.jpg',
                         list[index]
@@ -164,23 +191,31 @@ class _Slides2State extends State<Slides2> {
                     }
                     return CardContent(
                       color: Data.colors[index % Data.colors.length],
-                      children: [
-                        if (!noImage)
-                          Image.asset(
-                              data[0].indexOf('.') == -1
-                                  ? 'assets/stockimg/${data[0]}.jpg'
-                                  : data[0],
-                              width: 160,
-                              height: 160,
-                              fit: BoxFit.contain),
-                        const SizedBox(height: 40),
-                        Center(
-                            child: Text(data[1].toString(),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: parseNum(
-                                        widget.data['fontSize'] ?? '18'))))
-                      ],
+                      children: (index == list.length || data == null)
+                          ? [
+                              const SizedBox(height: 50),
+                              const Text('End',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 80))
+                            ]
+                          : [
+                              if (!noImage)
+                                Image.asset(
+                                    data[0].indexOf('.') == -1
+                                        ? 'assets/stockimg/${data[0]}.jpg'
+                                        : data[0],
+                                    width: 160,
+                                    height: 160,
+                                    fit: BoxFit.contain),
+                              const SizedBox(height: 40),
+                              Center(
+                                  child: Text(data[1].toString(),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: parseNum(
+                                              widget.data['fontSize'] ??
+                                                  '18'))))
+                            ],
                     );
                   },
                 ),
@@ -190,7 +225,6 @@ class _Slides2State extends State<Slides2> {
     }
 
     if (widget.data['displayType'] == 'custom') {
-      print('custom = $list');
       return Scaffold(
           backgroundColor: Theme.of(context).colorScheme.background,
           body: SafeArea(
@@ -204,23 +238,12 @@ class _Slides2State extends State<Slides2> {
                             color: const Color(0xf6f6f8ff),
                             child: Column(
                                 children: List<Widget>.generate(
-                                    subIndex + 1,
-                                    (i) => Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 10),
-                                        child: Text(
-                                            list[index][i] is Map
-                                                ? list[index][i]['text']
-                                                : list[index][i],
-                                            textAlign: TextAlign.left,
-                                            style: TextStyle(
-                                                fontSize:
-                                                    (list[index][i] is Map &&
-                                                            list[index][i]
-                                                                    ['type'] ==
-                                                                'title')
-                                                        ? 30
-                                                        : 18)))).toList()))),
+                                        subIndex + 1,
+                                        (i) => Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 10),
+                                            child: renderItem(list[index][i])))
+                                    .toList()))),
                     Align(
                         alignment: Alignment.topRight,
                         child: ElevatedButton(

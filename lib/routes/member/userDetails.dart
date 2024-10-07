@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:pschool_math/routes/comps/core.dart';
 import './settings.dart';
 import '../../common/globalController.dart';
 import '../../utils/utils.dart';
 import '../comps/subscribeBtn.dart';
-import '../comps/core.dart';
+import './usage.dart';
 
 class UserDetails extends StatelessWidget {
   const UserDetails({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
+    return SingleChildScrollView(
+        child: Column(children: [
       Consumer<GlobalController>(builder: (context, controller, child) {
         int subDate = getPaymentMap(controller.user['profile']);
 
@@ -38,7 +38,7 @@ class UserDetails extends StatelessWidget {
                         text: email,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                   ])),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               if (user['everSubscribed'] ?? false)
                 user['paidUser']
                     ? (RichText(
@@ -66,24 +66,24 @@ class UserDetails extends StatelessWidget {
                                         fontWeight: FontWeight.bold)),
                               ])),
                           const SizedBox(height: 15),
-                          SubscribeBtn(label: 'Renew'),
+                          SubscribeBtn(label: 'Renew Membership'),
                           const SizedBox(height: 15),
                           Text(
                               'Renew your subscription for one more year and support us.')
                         ],
                       )),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               if (subDate == 0)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
                         'Support us by becoming a member. No recurring charges.'),
-                    SizedBox(height: 15),
-                    SubscribeBtn(label: 'Subscribe')
+                    const SizedBox(height: 15),
+                    SubscribeBtn(label: 'Become a Member')
                   ],
                 ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(10),
@@ -94,7 +94,8 @@ class UserDetails extends StatelessWidget {
                     'Kindly do not share your login details outside your family. Instead ask them to become a member and support PSchool.',
                     style: TextStyle(color: Colors.white)),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
+              Usage(),
               Settings(),
               TextButton(
                 style: ButtonStyle(
@@ -115,6 +116,6 @@ class UserDetails extends StatelessWidget {
               )
             ]));
       })
-    ]);
+    ]));
   }
 }

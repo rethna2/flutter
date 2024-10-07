@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import '../common/globalController.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:pschool_math/utils/filesystem.dart';
+import 'dart:convert';
+import '../routes/comps/core.dart';
 
 class NotificationTest extends StatefulWidget {
   const NotificationTest({Key? key}) : super(key: key);
@@ -11,16 +15,33 @@ class NotificationTest extends StatefulWidget {
 
 class _NotificationTestState extends State {
   late int _totalNotifications;
+  Map? analytics;
   late final FirebaseMessaging _messaging;
   PushNotification? _notificationInfo;
 
   @override
   void initState() {
     _totalNotifications = 0;
+    _loadData();
     super.initState();
   }
 
+  Future<void> _loadData() async {
+    List<PlaylistProg> data =
+        await DatabaseHelper.instance.getPlaylistProgressList();
+    Map? user = await readFile('analytics');
+    setState(() {
+      analytics = user;
+    });
+    print('loadData = ${data.length}');
+    int i = 1;
+    data.forEach((PlaylistProg element) {
+      print('${i++}. ${element.payload}\n\n');
+    });
+  }
+
   void registerNotification() async {
+    print('registerNotification');
     await Firebase.initializeApp();
     _messaging = FirebaseMessaging.instance;
 
@@ -31,7 +52,12 @@ class _NotificationTestState extends State {
       provisional: false,
       sound: true,
     );
-
+    print('settings = $settings');
+    final fCMToken = await _messaging.getToken();
+    print('fCMToken = $fCMToken');
+    setState(() {
+      analytics = {'id': fCMToken};
+    });
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       print('User granted permission');
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -68,9 +94,37 @@ class _NotificationTestState extends State {
         title: Text('Notify'),
         //  brightness: Brightness.dark,
       ),
-      body: Column(
+      body: SingleChildScrollView(
+          child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Button(label: 'Request Notification', onClick: registerNotification),
+          Button(
+              label: 'Clear Work File',
+              onClick: () async {
+                bool res = await deleteFile('work');
+                print('Delete work file $res');
+              }),
+          Button(
+              label: 'Launch Playlist',
+              onClick: () async {
+                /*
+                try {
+                  print('Launch Playlist Click');
+                  print(
+                      ' navigatorKey.currentState = ${navigatorKey.currentState}');
+                  navigatorKey.currentState?.pushNamed('/playlist',
+                      arguments: RouteArgs(id: 'ratio-7', prevRoute: 'menu'));
+                } catch (e) {
+                  print('Error $e');
+                }
+                */
+                navigatorKey.currentState?.pushNamed('/playlist',
+                    arguments: RouteArgs(id: 'fraction', prevRoute: 'menu'));
+/*
+                Navigator.pushNamed(context, '/playlist',
+                    arguments: RouteArgs(id: 'ratio-7', prevRoute: 'menu'));*/
+              }),
           Text(
             'App for capturing Firebase Push Notifications',
             textAlign: TextAlign.center,
@@ -104,8 +158,9 @@ class _NotificationTestState extends State {
                   ],
                 )
               : Container(),
+          SelectableText(json.encode(analytics))
         ],
-      ),
+      )),
     );
   }
 }

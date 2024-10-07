@@ -29,14 +29,12 @@ class _DictationState extends State<Dictation> with TickerProviderStateMixin {
   );
   @override
   void initState() {
-    print('Dictation = ${widget.data}');
     response = widget.data['saved'] ?? [];
     done = response.isNotEmpty;
     index = widget.data['saved'] != null ? widget.data['saved'].length : 0;
     audioOffset = widget.data['audioOffset'] ?? 0;
     audioWidth = widget.data['audioWidth'] ?? 2;
     list = utils.inputStrToArr(widget.data['text'] ?? widget.data['words']);
-    print('list = $list');
     if (widget.data['audio'] != null) {
       player = AudioPlayer();
       String audio = widget.data['audio']; //.replaceAll('.mp3', '.aac');
@@ -67,8 +65,6 @@ class _DictationState extends State<Dictation> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    print('build = ${widget.data}');
-
     if (done) {
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('You have completed this activity.',
@@ -167,7 +163,6 @@ class _DictationState extends State<Dictation> with TickerProviderStateMixin {
             if (answered == true)
               ElevatedButton(
                   onPressed: () {
-                    print("Next Pressed");
                     setState(() {
                       answered = false;
                       index = index + 1;
@@ -184,7 +179,6 @@ class _DictationState extends State<Dictation> with TickerProviderStateMixin {
         Keyboard(
             lang: widget.data['lang'] ?? 'en',
             onPick: (key) {
-              print('key = $key');
               if (answered) {
                 return;
               }

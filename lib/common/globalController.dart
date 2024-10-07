@@ -4,7 +4,10 @@ import '../../utils/filesystem.dart';
 import 'dart:convert';
 import './cognitoService.dart';
 import './apiService.dart';
+import '../../config.dart';
 //import 'package:package_info_plus/package_info_plus.dart';
+
+GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class RouteArgs {
   final String id;
@@ -23,9 +26,8 @@ class RouteArgs {
 }
 
 class GlobalController with ChangeNotifier {
-  GlobalController(this._globalService, context, appConfig) {
+  GlobalController(this._globalService, context) {
     responses = {};
-    config = appConfig;
     user = {
       'userPref': {'grade': 'all', 'clapSound': true},
       'paidUser': config['freeApp'] ?? false
@@ -40,7 +42,6 @@ class GlobalController with ChangeNotifier {
 
   late Map responses;
   late Map user;
-  late Map config;
   String version = "1.0.0";
   //late PackageInfo packageInfo;
   ThemeMode get themeMode => _themeMode;
@@ -48,19 +49,19 @@ class GlobalController with ChangeNotifier {
   Future<void> loadSettings() async {
     _themeMode = await _globalService.themeMode();
 
-    String userStr = await readFile('user');
-    if (userStr != '') {
-      user = json.decode(userStr) as Map;
+    Map? _user = await readFile('user');
+    if (_user != null) {
+      user = _user;
     }
-    String str = await readFile("response");
-    Map res = {};
-    if (str != '') {
-      res = json.decode(str) as Map;
-      // res = res[id] ?? {};
-    }
-    responses = res;
+
+    Map? res = await readFile("response");
+    responses = res ?? {};
     //packageInfo = await PackageInfo.fromPlatform();
     notifyListeners();
+
+    if (user.containsKey('tokenDate')) {
+      await updateSession();
+    }
   }
 
   Future<void> updateThemeMode(ThemeMode? newThemeMode) async {
@@ -106,13 +107,10 @@ class GlobalController with ChangeNotifier {
     }
     try {
       bool success = false; //await writeFile(json.encode(responses));
-      print('success $success $obj');
       PlaylistProg playlistProg = PlaylistProg(
           id: playlistId,
           payload: json.encode(obj),
           date: DateTime.now().millisecondsSinceEpoch);
-
-      print('beforeSave ${playlistProg.toMap()}');
       await DatabaseHelper.instance.add(playlistProg, playlistId);
     } catch (e) {
       print('Error!! write failed : $e');
@@ -161,8 +159,13 @@ class GlobalController with ChangeNotifier {
       ...userPref,
     };
     userPref[key] = value;
-    print('updateUserPref = $userPref');
     user = {...user, 'userPref': userPref};
+    await writeFile(json.encode(user), 'user');
+    notifyListeners();
+  }
+
+  Future<void> addUserProps(Map map) async {
+    user = {...user, ...map};
     await writeFile(json.encode(user), 'user');
     notifyListeners();
   }

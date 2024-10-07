@@ -14,7 +14,6 @@ class Settings extends StatelessWidget {
         child:
             Consumer<GlobalController>(builder: (context, controller, child) {
           Map userPref = controller.user['userPref'] ?? {};
-          print("userPref = ${userPref}");
           return Column(children: [
             PTitle(title: 'Settings'),
             CheckboxListTile(

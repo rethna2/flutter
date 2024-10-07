@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/gestures.dart';
 import '../comps/core.dart';
 import '../../utils/utils.dart';
@@ -23,7 +23,6 @@ class _SignupState extends State<Signup> {
   bool showConfirmSignup = false;
 
   Future<void> handleSubmit(controller, isResendCode) async {
-    print('handleSubmit signup');
     if (isWaiting) {
       return;
     }
@@ -45,7 +44,6 @@ class _SignupState extends State<Signup> {
       res = await controller.confirmRegistration(
           otp, email.toLowerCase(), password);
     }
-    print('res = $res');
     if (res == 'success') {
       if (showConfirmSignup) {
         Navigator.pushNamed(
@@ -142,7 +140,9 @@ class _SignupState extends State<Signup> {
                         decoration: TextDecoration.underline),
                     recognizer: new TapGestureRecognizer()
                       ..onTap = () {
-                        launchUrlString('https://pschool.in');
+                        launchUrl(
+                            Uri.parse('https://pschool.in/privacy_policy.html'),
+                            mode: LaunchMode.externalApplication);
                       },
                   ),
                   TextSpan(text: ' and our '),
@@ -153,7 +153,10 @@ class _SignupState extends State<Signup> {
                         decoration: TextDecoration.underline),
                     recognizer: new TapGestureRecognizer()
                       ..onTap = () {
-                        launchUrlString('https://pschool.in');
+                        launchUrl(
+                            Uri.parse(
+                                'https://pschool.in/terms_conditions.html'),
+                            mode: LaunchMode.externalApplication);
                       },
                   ),
                 ])),

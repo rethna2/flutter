@@ -116,7 +116,6 @@ class _SubscribeBtnState extends State<SubscribeBtn> {
       ]);
     }
     return Consumer<GlobalController>(builder: (context, controller, child) {
-      print('USER ********** ${controller.user}');
       return Column(children: [
         if (errorMsg != "")
           Container(
@@ -134,7 +133,8 @@ class _SubscribeBtnState extends State<SubscribeBtn> {
               clipBehavior: Clip.none,
               color: Colors.orange,
               padding: EdgeInsets.fromLTRB(40, 10, 4, 10),
-              width: 170,
+              // width: 170,
+              width: 250,
               child: Row(children: [
                 isWaiting
                     ? SpinKitRing(

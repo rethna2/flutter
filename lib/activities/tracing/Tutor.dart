@@ -9,12 +9,16 @@ class Tutor extends StatefulWidget {
       required this.pathList,
       required this.data,
       required this.size,
+      required this.width,
+      this.yGuides,
       required this.scale})
       : super(key: key);
   final List<List> pathList;
   final Map data;
   final num scale;
   final Size size;
+  final List? yGuides;
+  final int width;
   @override
   State<Tutor> createState() => _TutorState();
 }
@@ -43,22 +47,32 @@ class _TutorState extends State<Tutor> with TickerProviderStateMixin {
       });
     // #enddocregion addListener
     controller.addStatusListener((status) {
+      print('completeState = $step');
+
       if (status == AnimationStatus.completed) {
         int nextStep = step + 1;
         if (nextStep >= pathList.length) {
           nextStep = 0;
+          Future.delayed(Duration(milliseconds: 4000), () {
+            if (mounted) {
+              setAnimation(nextStep);
+            }
+          });
+        } else {
+          setAnimation(nextStep);
         }
-        controller.duration = Duration(
-            milliseconds:
-                max(400, widget.data['lengths'][nextStep].toInt() * 5));
-        animation =
-            Tween<double>(begin: 0, end: widget.data['lengths'][nextStep])
-                .animate(controller);
-        setState(() {
-          step = nextStep;
-        });
-        controller.forward(from: 0);
       }
+    });
+    controller.forward(from: 0);
+  }
+
+  void setAnimation(nextStep) {
+    controller.duration = Duration(
+        milliseconds: max(400, widget.data['lengths'][nextStep].toInt() * 5));
+    animation = Tween<double>(begin: 0, end: widget.data['lengths'][nextStep])
+        .animate(controller);
+    setState(() {
+      step = nextStep;
     });
     controller.forward(from: 0);
   }
@@ -85,10 +99,15 @@ class _TutorState extends State<Tutor> with TickerProviderStateMixin {
       new Center(
           child: CustomPaint(
         //size: const Size(double.infinity, double.infinity),
-        size: Size(widget.size.width, widget.size.height - 160),
+        //size: Size(widget.size.width, widget.size.height - 160),
+        size: Size(widget.width.toDouble() + 30, widget.size.height - 160),
+        // The width offset was added to avoid going out.
         painter: TutorPainter(
           pathList: [...pathList],
           step: step,
+          yGuides: (widget.yGuides ?? [])
+              .map((no) => no * widget.scale as double)
+              .toList(),
           animValue: animation.value,
         ),
       )),
@@ -100,10 +119,12 @@ class TutorPainter extends CustomPainter {
   TutorPainter({
     required this.pathList,
     required this.step,
+    required this.yGuides,
     required this.animValue,
   });
   List<List> pathList;
   int step;
+  List yGuides;
   double animValue;
   @override
   void paint(Canvas canvas, Size size) {
@@ -115,7 +136,13 @@ class TutorPainter extends CustomPainter {
       ..strokeWidth = 8.0;
     Path path = new Path();
     Path path2 = new Path();
+    Path supportLine = new Path();
 
+    for (int i = 0; i < yGuides.length; i++) {
+      supportLine.moveTo(-400, yGuides[i]);
+      supportLine.lineTo(800, yGuides[i]);
+    }
+    canvas.drawPath(supportLine, _getPaint(Colors.blue, false, 1.0));
     try {
       for (int i = 0; i < pathList.length; i++) {
         // paintSvgData(path, pathList[i]);
@@ -170,4 +197,13 @@ void drawArrow(canvas, tangent) {
     path4.lineTo(pos.dx + vector.dx * 40, pos.dy + vector.dy * 40);
   }
   canvas.drawPath(path4, paint4);
+}
+
+Paint _getPaint(color, [isFill, strokeWidth]) {
+  return Paint()
+    ..color = color
+    ..style = isFill == true ? PaintingStyle.fill : PaintingStyle.stroke
+    ..strokeCap = StrokeCap.round
+    ..strokeJoin = StrokeJoin.round
+    ..strokeWidth = strokeWidth ?? 8.0;
 }

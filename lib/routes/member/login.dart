@@ -9,16 +9,6 @@ import '../comps/core.dart';
 import '../../common/globalController.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
-  onPrimary: Colors.black87,
-  primary: Colors.grey[300],
-  minimumSize: Size(88, 36),
-  padding: EdgeInsets.symmetric(horizontal: 16),
-  shape: const RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(2)),
-  ),
-);
-
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
 
@@ -45,7 +35,6 @@ class _LoginState extends State<Login> {
       errorMsg = '';
     });
     String res = await controller.login(email.toLowerCase(), password);
-    print('login $res');
     if (res == 'success') {
       Navigator.pushNamed(
         context,

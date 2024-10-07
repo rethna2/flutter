@@ -1,10 +1,12 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../utils/utils.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 class ApiService {
   static String url =
-      'https://v25einw5z1.execute-api.ap-south-1.amazonaws.com/dev/';
+      'https://pavinzsivc.execute-api.ap-south-1.amazonaws.com/dev/';
+  //'https://v25einw5z1.execute-api.ap-south-1.amazonaws.com/dev/';
   //Fetches profile data from DB and update user
   static Future<Map> getProfile(token, user) async {
     try {
@@ -14,6 +16,7 @@ class ApiService {
       });
       if (res.statusCode.toString()[0] == '2') {
         Map data = jsonDecode(res.body);
+
         int subDate = getPaymentMap(data['profile']);
         int tillDate = subDate + 31536000000; // plus one year;
         int now = DateTime.now().millisecondsSinceEpoch;
@@ -27,6 +30,51 @@ class ApiService {
           'subscribedTill': getDate(tillDate)
         };
         return {'error': false, 'user': user};
+      } else {
+        return {'error': true, 'message': res.body.toString()};
+      }
+    } catch (e) {
+      return {'error': true, 'message': e.toString()};
+    }
+  }
+
+  static Future<Map?> get(String route, token) async {
+    bool result = await InternetConnection().hasInternetAccess;
+    if (!result) {
+      return {'error': true, 'message': 'Network Unavailable'};
+    }
+    try {
+      http.Response res = await http.get(Uri.parse('${url}${route}'), headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+      });
+      if (res.statusCode.toString()[0] == '2') {
+        Map data = jsonDecode(res.body);
+        return data;
+      } else {
+        return {'error': true, 'message': res.body.toString()};
+      }
+    } catch (e) {
+      return {'error': true, 'message': e.toString()};
+    }
+  }
+
+  static Future<Map?> post(String route, token, Map body, Map config) async {
+    String _url = config['url'] ?? url;
+    bool result = await InternetConnection().hasInternetAccess;
+    if (!result) {
+      return {'error': true, 'message': 'Network Unavailable'};
+    }
+    Map<String, String> headers = {'Content-Type': 'application/json'};
+    if (token != null) {
+      headers['Authorization'] = token;
+    }
+    try {
+      http.Response res = await http.post(Uri.parse('${_url}${route}'),
+          body: jsonEncode(body), headers: headers);
+      if (res.statusCode.toString()[0] == '2') {
+        Map data = jsonDecode(res.body);
+        return data;
       } else {
         return {'error': true, 'message': res.body.toString()};
       }

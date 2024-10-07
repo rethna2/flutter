@@ -7,6 +7,8 @@ import 'dart:convert';
 import 'activityView.dart';
 import 'comps/MyAppBar.dart';
 import '../utils/filesystem.dart';
+import '../config.dart';
+import '../utils/vars.dart';
 
 /*
 class PlaylistView extends StatelessWidget {
@@ -54,15 +56,23 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
   }
 
   Future<void> readJson(RouteArgs args) async {
+    print('playlistview args.id = ${args.id}, ${_tempData['id']}');
     Map data;
     if (_tempData['id'] == args.id) {
       data = _tempData;
     } else {
-      print('playlistID ${args.id}');
-      final String response =
-          await rootBundle.loadString('assets/playlists/${args.id}.pschool');
+      String response = '';
+      try {
+        response =
+            await rootBundle.loadString('assets/playlists/${args.id}.pschool');
+      } catch (e) {
+        print('playlistView readJSON error $e');
+        Navigator.pushReplacementNamed(context, '/allPlaylists',
+            arguments: RouteArgs(id: config['allPlaylistId'] as String));
+        return;
+      }
+
       data = await json.decode(response);
-      print('data type = ${data['type']}');
       if (data['type'] == 'curriculumIcon') {
         Navigator.pushReplacementNamed(context, '/',
             arguments: RouteArgs(id: data['id'], data: data));
@@ -89,8 +99,6 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
         count += 1;
       }
     }
-
-    print('isLocked args.lastAct = , ${args.lastAct},  ${_lastAct}');
     if (args.lastAct != null && args.lastAct != _lastAct) {
       String lastAct = args.lastAct ?? '';
       if (lastAct.indexOf('_') != -1) {
@@ -102,8 +110,9 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
         if (actData['data'].length >= nextIndex) {
           var payload =
               _deriveData(actData, nextIndex - 1, res[actData['id']], data);
-          bool isLocked =
-              nextIndex > 1 && nextIndex > (actData['data'].length / 4).ceil();
+          //   bool isLocked =  nextIndex > 1 && nextIndex > (actData['data'].length / 4).ceil();
+
+          bool isLocked = false;
           if (!isLocked || args.paidUser == true) {
             if (args.isBack != true) {
               // await Future.delayed(const Duration(milliseconds: 1000));
@@ -132,10 +141,13 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
   }
 
   Future<bool> _onWillPop(args) async {
+    print('args.prevRoute = ${args.prevRoute}');
     if (args.prevRoute == 'menu') {
       return true;
     }
-    Navigator.popAndPushNamed(context, '/');
+
+    Navigator.popAndPushNamed(context, '/allPlaylists',
+        arguments: RouteArgs(id: config['allPlaylistId'] as String));
     return false; //<-- SEE HERE
   }
 
@@ -170,17 +182,44 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
                 Consumer<GlobalController>(
                     builder: (context, controller, child) {
               // final responses = controller.responses[_data['id']] ?? {};
+              bool paidUser = controller.user['paidUser'] ?? false;
+              int lockLimit = 100;
+              if (!paidUser) {
+                lockLimit = 4;
+              }
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
-                    color: Color(0xff1b75b7),
-                    width: double.infinity,
-                    child: Text(_data['label'],
-                        style: TextStyle(color: Colors.white)),
-                  ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      color: dc2,
+                      width: double.infinity,
+                      child: Wrap(
+                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        alignment: WrapAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              child: Text(_data['label'],
+                                  // overflow: TextOverflow.,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 21))),
+                          if (_res.isNotEmpty)
+                            ElevatedButton(
+                                onPressed: () {
+                                  DatabaseHelper.instance
+                                      .removePlaylistResponse(_data["id"]);
+                                  setState(() {
+                                    _res = {};
+                                  });
+                                },
+                                child: Text('Reset'),
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: const Color(0xff1b75b7)))
+                        ],
+                      )),
                   Column(
                       children: _items.mapIndexed((i, item) {
                     var res =
@@ -189,6 +228,7 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
                     return Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
+                        color: lc2,
                         border: Border(
                           bottom: BorderSide(
                               width: 1, color: Colors.lightBlue.shade900),
@@ -196,62 +236,82 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
                       ),
                       child: Column(children: [
                         Row(children: [
-                          Expanded(
-                              child: InkWell(
-                            onTap: () {
-                              Map payload = _items[i] as Map;
-
-                              if (res != null) {
-                                payload = {
-                                  ...payload,
-                                  'data': {
-                                    ...payload['data'],
-                                    'saved': res['response']
+                          if (lockLimit > i)
+                            Expanded(
+                                child: InkWell(
+                              onTap: () {
+                                Map payload = _items[i] as Map;
+                                if (res != null) {
+                                  payload = {
+                                    ...payload,
+                                    'data': {
+                                      ...payload['data'],
+                                      'saved': res['response']
+                                    }
+                                  };
+                                }
+                                if (payload['data']['refs'] != null) {
+                                  String refId = payload['data']['refs'];
+                                  var refData;
+                                  if (refId.indexOf('~') != -1) {
+                                    int refIndex = int.parse(refId
+                                        .substring(refId.indexOf('~') + 1));
+                                    refId =
+                                        refId.substring(0, refId.indexOf('~'));
+                                    refData = _data["defs"][refId][refIndex];
+                                  } else {
+                                    refData = _data["defs"][refId];
                                   }
-                                };
-                              }
-                              if (payload['data']['refs'] != null) {
-                                String refId = payload['data']['refs'];
-                                var refData;
-                                if (refId.indexOf('~') != -1) {
-                                  int refIndex = int.parse(
-                                      refId.substring(refId.indexOf('~') + 1));
-                                  refId =
-                                      refId.substring(0, refId.indexOf('~'));
-                                  refData = _data["defs"][refId][refIndex];
-                                } else {
-                                  refData = _data["defs"][refId];
+                                  if (refData is String) {
+                                    refData = {'text': refData};
+                                  } else if (refData.runtimeType ==
+                                      List<dynamic>) {
+                                    refData = {'arr': refData};
+                                  }
+                                  Map data = {...payload['data'], ...refData};
+                                  payload = {...payload, 'data': data};
                                 }
-                                if (refData is String) {
-                                  refData = {'text': refData};
+                                //pushNamed is changed to popAndPushNamed
+                                if (args.lastAct != null) {
+                                  //Navigator.pushReplacementNamed(
+                                  Navigator.pushNamed(context, '/activity',
+                                      arguments: ActivityPageArgs(
+                                          payload,
+                                          _data["id"],
+                                          _items[i]['id'],
+                                          _actsCount));
                                 } else {
-                                  refData = {'arr': refData};
+                                  Navigator.pushNamed(context, '/activity',
+                                      arguments: ActivityPageArgs(
+                                          payload,
+                                          _data["id"],
+                                          _items[i]['id'],
+                                          _actsCount));
                                 }
-                                Map data = {...payload['data'], ...refData};
-                                payload = {...payload, 'data': data};
-                              }
-                              //pushNamed is changed to popAndPushNamed
-                              if (args.lastAct != null) {
-                                //Navigator.pushReplacementNamed(
-                                Navigator.pushNamed(context, '/activity',
-                                    arguments: ActivityPageArgs(
-                                        payload,
-                                        _data["id"],
-                                        _items[i]['id'],
-                                        _actsCount));
-                              } else {
-                                Navigator.pushNamed(context, '/activity',
-                                    arguments: ActivityPageArgs(
-                                        payload,
-                                        _data["id"],
-                                        _items[i]['id'],
-                                        _actsCount));
-                              }
 
-                              ;
-                            },
-                            child: Text(_items[i]["label"]),
-                          )),
+                                ;
+                              },
+                              child: Text(_items[i]["label"]),
+                            )),
+                          if (i >= lockLimit)
+                            Expanded(
+                                child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                        context,
+                                        '/asktosubscribe',
+                                      );
+                                    },
+                                    child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(_items[i]["label"]),
+                                          const SizedBox(width: 100),
+                                          if (!isList)
+                                            const Icon(Icons.lock,
+                                                color: Color(0xff1b75b7))
+                                        ]))),
                           if (res != null)
                             GestureDetector(
                                 onTap: () {
@@ -282,7 +342,8 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
                           Align(
                               alignment: Alignment.topLeft,
                               child: Container(
-                                  padding: const EdgeInsets.all(10),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10),
                                   child: Wrap(
                                     spacing: 20,
                                     runSpacing: 20,
@@ -292,10 +353,9 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
                                             item: _items[i],
                                             res: res,
                                             pos: j,
+                                            index: i,
                                             playlistId: _data['id'],
-                                            paidUser:
-                                                controller.user['paidUser'] ??
-                                                    false,
+                                            paidUser: paidUser,
                                             args: args))
                                         .toList(),
                                   )))
@@ -310,7 +370,7 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
             })))));
   }
 
-  Widget getActBtn({item, res, pos, playlistId, paidUser, args}) {
+  Widget getActBtn({item, res, index, pos, playlistId, paidUser, args}) {
     bool isLocked = false;
     if (!paidUser) {
       //isLocked = (item['appLockAfter'] ?? item['lockAfter'] ?? 100) < pos;
@@ -387,14 +447,13 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
         if (refId.indexOf('~') != -1) {
           int refIndex = int.parse(refId.substring(refId.indexOf('~') + 1));
           refId = refId.substring(0, refId.indexOf('~'));
-          print('refId = $refId, $refIndex');
           refData = playlistData["defs"][refId][refIndex];
         } else {
           refData = playlistData["defs"][refId];
         }
         if (refData is String) {
           refData = {'text': refData};
-        } else {
+        } else if (refData.runtimeType == List<dynamic>) {
           refData = {'arr': refData};
         }
         payload = {...payload, ...refData};

@@ -159,7 +159,6 @@ class _KeyboardState extends State<Keyboard> {
                           });
                           return;
                         }
-                        print('onPick = ${list[i]}');
                         widget.onPick(list[i]);
                         setState(() {
                           selected = '';

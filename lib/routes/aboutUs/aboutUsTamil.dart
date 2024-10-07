@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/gestures.dart';
 //import 'comps/MainMenu.dart';
 import '../comps/MyAppBar.dart';
@@ -48,7 +48,8 @@ class AboutUs extends StatelessWidget {
                     style: new TextStyle(color: Colors.blue),
                     recognizer: new TapGestureRecognizer()
                       ..onTap = () {
-                        launchUrlString('https://pschool.in');
+                        launchUrl(Uri.parse('https://pschool.in'),
+                            mode: LaunchMode.externalApplication);
                       },
                   ),
                   TextSpan(text: ' and explore the lot of sample activities.')

@@ -90,7 +90,7 @@ class _CoolSwiperState extends State<CoolSwiper>
       stackChildren.insert(0, last);
       index += 1;
     });
-    if (index < stackChildren.length) {
+    if (index < stackChildren.length - 1) {
       playaudio();
     }
   }
@@ -107,7 +107,6 @@ class _CoolSwiperState extends State<CoolSwiper>
             (index) * widget.audioWidth +
             widget.audioWidth;
       }
-      print('list length start $start, $end');
       await player.setClip(
           start: Duration(milliseconds: (start * 1000).round()),
           end: Duration(milliseconds: (end * 1000).round()));
@@ -125,7 +124,6 @@ class _CoolSwiperState extends State<CoolSwiper>
       duration: Constants.backgroundCardsAnimationDuration,
     );
     // String audio = widget.audio.replaceAll('.mp3', '.aac');
-    print('initState');
     if (widget.audio != 'none') {
       player = AudioPlayer();
       player.setAsset('assets/sound/${widget.audio}');
@@ -146,7 +144,7 @@ class _CoolSwiperState extends State<CoolSwiper>
 
   @override
   Widget build(BuildContext context) {
-    if (index >= _cards.length) {
+    if (index >= _cards.length - 1) {
       return Column(children: [
         Text('You have completed this activity.',
             style: TextStyle(fontStyle: FontStyle.italic, fontSize: 25)),

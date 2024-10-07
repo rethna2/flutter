@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/gestures.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 //import 'comps/MainMenu.dart';
@@ -8,6 +9,14 @@ import '../comps/MyAppBar.dart';
 
 class Social extends StatelessWidget {
   const Social({Key? key}) : super(key: key);
+
+  Future<void> launchSocial(String link) async {
+    bool canLaunch = await canLaunchUrl(Uri.parse(link));
+    print('success canLaunch = $canLaunch');
+    bool success =
+        await launchUrl(Uri.parse(link), mode: LaunchMode.externalApplication);
+    print('success = $success');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,48 +32,70 @@ class Social extends StatelessWidget {
             children: [
               IconButton(
                   // Use the FaIcon Widget + FontAwesomeIcons class for the IconData
+                  constraints: const BoxConstraints(),
+                  padding: EdgeInsets.zero,
+                  icon: const FaIcon(FontAwesomeIcons.whatsapp,
+                      color: Color(0xff075E54)),
+                  onPressed: () {
+                    launchSocial(
+                        'https://whatsapp.com/channel/0029VaBmyyHHAdNPF7fUPe03');
+                  }),
+              IconButton(
+                  constraints: const BoxConstraints(),
+                  padding: EdgeInsets.zero,
                   icon: const FaIcon(FontAwesomeIcons.squareFacebook,
                       color: Color(0xff3B5998)),
                   onPressed: () {
-                    launchUrlString('https://www.facebook.com/pschool.in');
+                    launchSocial('https://www.facebook.com/pschool.in');
                   }),
               IconButton(
+                  constraints: const BoxConstraints(),
+                  padding: EdgeInsets.zero,
                   icon: const FaIcon(FontAwesomeIcons.instagram,
                       color: Color(0xffDD2A7B)),
                   onPressed: () {
-                    launchUrlString('https://www.instagram.com/pschool.in');
+                    launchSocial('https://www.instagram.com/pschool.in');
                   }),
               IconButton(
+                  constraints: const BoxConstraints(),
+                  padding: EdgeInsets.zero,
                   icon: const FaIcon(FontAwesomeIcons.youtube,
                       color: Color(0xffE62117)),
-                  onPressed: () {
-                    launchUrlString(
+                  onPressed: () async {
+                    launchSocial(
                         'https://www.youtube.com/channel/UCEAHgV0Qp2x3oEFbAoAdVyg');
                   }),
               IconButton(
+                  constraints: const BoxConstraints(),
+                  padding: EdgeInsets.zero,
                   icon: const FaIcon(FontAwesomeIcons.twitter,
                       color: Color(0xff08a0e9)),
                   onPressed: () {
-                    launchUrlString('https://twitter.com/pschool_app');
+                    launchSocial('https://twitter.com/pschool_app');
                   }),
               IconButton(
+                  constraints: const BoxConstraints(),
+                  padding: EdgeInsets.zero,
                   icon: const FaIcon(FontAwesomeIcons.pinterest,
                       color: Color(0xffBD081C)),
                   onPressed: () {
-                    launchUrlString('https://www.pinterest.com/pschool_in/');
+                    launchSocial('https://www.pinterest.com/pschool_in/');
                   }),
               IconButton(
+                  constraints: const BoxConstraints(),
+                  padding: EdgeInsets.zero,
                   icon: const FaIcon(FontAwesomeIcons.linkedin,
                       color: Color(0xff0077B5)),
                   onPressed: () {
-                    launchUrlString(
-                        'https://www.linkedin.com/company/pschool-in');
+                    launchSocial('https://www.linkedin.com/company/pschool-in');
                   }),
               IconButton(
+                  constraints: const BoxConstraints(),
+                  padding: EdgeInsets.zero,
                   icon: const FaIcon(FontAwesomeIcons.github,
                       color: Color(0xff00405d)),
                   onPressed: () {
-                    launchUrlString('https://github.com/pschool-in/curriculum');
+                    launchSocial('https://github.com/pschool-in/curriculum');
                   }),
             ],
           )

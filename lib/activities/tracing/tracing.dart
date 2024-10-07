@@ -145,7 +145,9 @@ class _TracingState extends State<Tracing> with TickerProviderStateMixin {
       isDone = true;
       _offsetAnimation = _endSlide.animate(_controller);
       _controller.forward(from: 0);
-      if (newIndex != null) {
+      if (newIndex == -1) {
+        //repeat the same number
+      } else if (newIndex != null) {
         index = newIndex;
         pickLetterView = false;
       } else {
@@ -223,14 +225,17 @@ class _TracingState extends State<Tracing> with TickerProviderStateMixin {
                         data: dataToPass,
                         pathList: pathList,
                         scale: scale,
+                        yGuides: widget.data['yGuides'] ?? [95, 250],
+                        width: Math.max(
+                            widget.data["source"][index]['width'] ?? 150, 150),
                         size: widget.size))
                     : (Tracer(
                         data: dataToPass,
                         pathList: pathList,
                         scale: scale,
-                        yGuides: [95, 250],
+                        yGuides: widget.data['yGuides'] ?? [95, 250],
                         width: Math.max(
-                            widget.data["source"][index]['width'] ?? 300, 250),
+                            widget.data["source"][index]['width'] ?? 150, 150),
                         size: widget.size,
                         done: handleNext))),
           )),

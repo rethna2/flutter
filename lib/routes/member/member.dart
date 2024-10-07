@@ -11,40 +11,52 @@ import '../../common/globalController.dart';
 //final _navigatorKey = GlobalKey<NavigatorState>();
 
 class MemberPage extends StatelessWidget {
-  const MemberPage({Key? key}) : super(key: key);
+  MemberPage({Key? key}) : super(key: key);
+
+  final navigatorKey = GlobalKey<NavigatorState>();
+
+  Future<bool> _onWillPop(context) async {
+    print('Member page _onWillPop');
+    Navigator.popAndPushNamed(context, '/');
+    return false;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: MyAppBar(title: 'Member Page'),
-        body: Consumer<GlobalController>(builder: (context, controller, child) {
-          return Navigator(
-              //key: _navigatorKey,
-              initialRoute: controller.user['profile'] != null
-                  ? '/member/details'
-                  : '/member/new',
-              onGenerateRoute: (RouteSettings routeSettings) {
-                WidgetBuilder builder;
-                switch (routeSettings.name) {
-                  case '/member/login':
-                    builder = (BuildContext context) => Login();
-                    break;
-                  case '/member/signup':
-                    builder = (BuildContext context) => const Signup();
-                    break;
-                  case '/member/forgetpassword':
-                    builder = (BuildContext context) => const ResetPassword();
-                    break;
-                  case '/member/details':
-                    builder = (BuildContext context) => const UserDetails();
-                    break;
-                  case '/member/new':
-                  default:
-                    builder = (BuildContext context) => const NonMember();
-                }
-                return MaterialPageRoute<void>(
-                    builder: builder, settings: routeSettings);
-              });
-        }));
+    return WillPopScope(
+        onWillPop: () => _onWillPop(context),
+        child: Scaffold(
+            appBar: MyAppBar(title: 'Member Page'),
+            body: Consumer<GlobalController>(
+                builder: (context, controller, child) {
+              return Navigator(
+                  //key: _navigatorKey,
+                  initialRoute: controller.user['profile'] != null
+                      ? '/member/details'
+                      : '/member/new',
+                  onGenerateRoute: (RouteSettings routeSettings) {
+                    WidgetBuilder builder;
+                    switch (routeSettings.name) {
+                      case '/member/login':
+                        builder = (BuildContext context) => Login();
+                        break;
+                      case '/member/signup':
+                        builder = (BuildContext context) => const Signup();
+                        break;
+                      case '/member/forgetpassword':
+                        builder =
+                            (BuildContext context) => const ResetPassword();
+                        break;
+                      case '/member/details':
+                        builder = (BuildContext context) => const UserDetails();
+                        break;
+                      case '/member/new':
+                      default:
+                        builder = (BuildContext context) => const NonMember();
+                    }
+                    return MaterialPageRoute<void>(
+                        builder: builder, settings: routeSettings);
+                  });
+            })));
   }
 }

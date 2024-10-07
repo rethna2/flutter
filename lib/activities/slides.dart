@@ -52,28 +52,39 @@ class _SlidesState extends State<Slides> with TickerProviderStateMixin {
               audioWidth: widget.data['audioWidth'] ?? 2,
               title: widget.data['title'],
               children: List.generate(
-                list.length,
+                list.length + 1,
                 (index) => CardContent(
                     color: Data.colors[index % Data.colors.length],
-                    children: [
-                      if (widget.data['type'] != 'text')
-                        Image.asset(
-                            widget.data['baseFolder'] != null
-                                ? 'assets/img/${widget.data['baseFolder']}${list[index][0]}.jpg'
-                                : 'assets/stockimg/${list[index][0]}.jpg',
-                            width: 160,
-                            height: 160,
-                            fit: BoxFit.contain),
-                      const SizedBox(height: 40),
-                      Center(
-                          child: Text(list[index][1].toString(),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: (widget.data['type'] == 'text' &&
-                                          list[index][1].toString().length < 5)
-                                      ? 80
-                                      : 25)))
-                    ]),
+                    children: index == list.length
+                        ? [
+                            const SizedBox(height: 50),
+                            const Text('End',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 80))
+                          ]
+                        : [
+                            if (widget.data['type'] != 'text')
+                              Image.asset(
+                                  widget.data['baseFolder'] != null
+                                      ? 'assets/img/${widget.data['baseFolder']}${list[index][0]}.jpg'
+                                      : 'assets/stockimg/${list[index][0]}.jpg',
+                                  width: 160,
+                                  height: 160,
+                                  fit: BoxFit.contain),
+                            const SizedBox(height: 40),
+                            Center(
+                                child: Text(list[index][1].toString(),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize:
+                                            (widget.data['type'] == 'text' &&
+                                                    list[index][1]
+                                                            .toString()
+                                                            .length <
+                                                        5)
+                                                ? 80
+                                                : 25)))
+                          ]),
               ),
             )),
       ),

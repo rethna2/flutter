@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../common/globalController.dart';
 import 'package:provider/provider.dart';
+import '../../config.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   MyAppBar({Key? key, this.title}) : super(key: key);
@@ -17,10 +18,10 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                   '/',
                 );
               },
-              child: Text(title ?? controller.config['appBarTitle'],
+              child: Text(title ?? config['appBarTitle'] as String,
                   style: GoogleFonts.girassol(
                       textStyle: TextStyle(fontSize: 24)))),
-          actions: [_MainMenu(config: controller.config)]);
+          actions: [_MainMenu()]);
     });
   }
 
@@ -29,9 +30,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class _MainMenu extends StatelessWidget {
-  _MainMenu({Key? key, required this.config}) : super(key: key);
-  late Map config;
-
+  _MainMenu({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     var route = ModalRoute.of(context)!.settings.name;
@@ -60,12 +59,13 @@ class _MainMenu extends StatelessWidget {
             context,
             '/',
           );
-        } else if (item == 'Member') {
+        } /* else if (item == 'Member') {
           Navigator.pushNamed(
             context,
             '/member',
           );
-        } else if (item == 'About Us') {
+        } */
+        else if (item == 'About Us') {
           Navigator.pushNamed(
             context,
             '/about',
@@ -77,7 +77,7 @@ class _MainMenu extends StatelessWidget {
           );
         } else if (item == 'All Playlists') {
           Navigator.pushNamed(context, '/allPlaylists',
-              arguments: RouteArgs(id: config['allPlaylistId']));
+              arguments: RouteArgs(id: config['allPlaylistId'] as String));
         }
       },
       child: Padding(
@@ -98,9 +98,9 @@ class _MainMenu extends StatelessWidget {
         } else {
           return {
             'Home Page',
-            'Member',
+            //   'Member',
             'About Us',
-            'All Playlists', /*'Test'*/
+            'All Playlists' /*, 'Test'*/
           }.map((String choice) {
             return PopupMenuItem<String>(
               value: choice,

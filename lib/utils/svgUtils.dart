@@ -242,14 +242,14 @@ List getRealLengths(data, Size size) {
 }
 
 num getScale(canvasData, Size size) {
-  int lineWidth = 350;
+  int lineWidth = 250;
   if (canvasData['width'] != null) {
     lineWidth = Math.max(lineWidth, canvasData['width']);
   }
   List<num> options = [
     (size.width - 50) / lineWidth,
     2,
-    (size.height - 80) / 400
+    (size.height - 80) / 200
   ];
   return options.reduce(Math.min);
 }

@@ -21,7 +21,6 @@ class _ResetPasswordState extends State<ResetPassword> {
   bool formTwo = false;
 
   Future<void> handleSubmit(controller, isResendCode) async {
-    print('handleSubmit resetPassword');
     if (isWaiting) {
       return;
     }
