@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../common/globalController.dart';
 import 'package:provider/provider.dart';
 import '../../config.dart';
@@ -11,6 +12,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return Consumer<GlobalController>(builder: (context, controller, child) {
       return AppBar(
+          automaticallyImplyLeading: false,
           title: GestureDetector(
               onTap: () {
                 Navigator.pushNamed(
@@ -59,17 +61,19 @@ class _MainMenu extends StatelessWidget {
             context,
             '/',
           );
-        } /* else if (item == 'Member') {
+        } else if (item == 'Member') {
           Navigator.pushNamed(
             context,
             '/member',
           );
-        } */
-        else if (item == 'About Us') {
+        } else if (item == 'About Us') {
           Navigator.pushNamed(
             context,
             '/about',
           );
+        } else if (item == 'Donate Us') {
+          launchUrl(Uri.parse('https://pschool.app/donate'),
+              mode: LaunchMode.externalApplication);
         } else if (item == 'Test') {
           Navigator.pushNamed(
             context,
@@ -88,7 +92,7 @@ class _MainMenu extends StatelessWidget {
           )),
       itemBuilder: (BuildContext context) {
         if (config['freeApp'] == true) {
-          return {'Home Page', 'About Us', 'All Playlists'}
+          return {'Home Page', 'About Us', 'Donate Us', 'All Playlists'}
               .map((String choice) {
             return PopupMenuItem<String>(
               value: choice,
@@ -98,7 +102,8 @@ class _MainMenu extends StatelessWidget {
         } else {
           return {
             'Home Page',
-            //   'Member',
+            'Member',
+            'Donate Us',
             'About Us',
             'All Playlists' /*, 'Test'*/
           }.map((String choice) {

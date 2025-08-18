@@ -185,7 +185,7 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
               bool paidUser = controller.user['paidUser'] ?? false;
               int lockLimit = 100;
               if (!paidUser) {
-                lockLimit = 4;
+                // lockLimit = 4;
               }
 
               return Column(
@@ -379,7 +379,7 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
         isLocked = pos >= (item['data'].toList().length / 4);
       }
     }
-
+    isLocked = false;
     if (isLocked) {
       return ElevatedButton(
           onPressed: () {

@@ -15,7 +15,9 @@ android/app/src/main/AndroidManifest.xml - update package and 'android:label'
 
 android\app\src\debug\AndroidManifest.xml
 
----
+Step 3:
+
+1. Edit config.dart
 
 commands
 
@@ -128,4 +130,30 @@ assets:
     - webNextjs/_next/static/chunks/pages/posts/
     - webNextjs/_next/static/chunks/pages/acts/
     - webNextjs/_next/static/pyKKeS_EDIf0tPWwruYSk/
+```
+
+
+# Assets for PalaguTamil
+
+```
+assets:
+    - assets/
+    - assets/icons/
+    - assets/playlists/
+    - assets/stockimg/
+    - assets/sound/ta/
+    - assets/img/dragDrop/
+    - assets/img/story/
+    - assets/img/story/crow/
+    - assets/img/science/
+    - assets/img/science/healthy-eating-habits/
+    - assets/img/science/mango-story/
+    - webNextjs/
+    - webNextjs/acts/
+    - webNextjs/_next/static/media/
+    - webNextjs/_next/static/css/
+    - webNextjs/_next/static/chunks/
+    - webNextjs/_next/static/chunks/pages/
+    - webNextjs/_next/static/chunks/pages/acts/
+    - webNextjs/_next/static/gLHTh-UisMAiy3D17LJ57/
 ```

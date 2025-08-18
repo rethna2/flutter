@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import './settings.dart';
 import '../../common/globalController.dart';
 import '../../utils/utils.dart';
-import '../comps/subscribeBtn.dart';
+//import '../comps/subscribeBtn.dart';
 import './usage.dart';
 
 class UserDetails extends StatelessWidget {
@@ -54,6 +54,7 @@ class UserDetails extends StatelessWidget {
                     : (Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
+                          /*
                           RichText(
                               text: TextSpan(
                                   style: const TextStyle(color: Colors.red),
@@ -66,21 +67,23 @@ class UserDetails extends StatelessWidget {
                                         fontWeight: FontWeight.bold)),
                               ])),
                           const SizedBox(height: 15),
-                          SubscribeBtn(label: 'Renew Membership'),
+                          // SubscribeBtn(label: 'Renew Membership'),
                           const SizedBox(height: 15),
                           Text(
                               'Renew your subscription for one more year and support us.')
+                              */
                         ],
                       )),
               const SizedBox(height: 20),
               if (subDate == 0)
+                /*
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
                         'Support us by becoming a member. No recurring charges.'),
                     const SizedBox(height: 15),
-                    SubscribeBtn(label: 'Become a Member')
+                    // SubscribeBtn(label: 'Become a Member')
                   ],
                 ),
               const SizedBox(height: 20),
@@ -94,7 +97,8 @@ class UserDetails extends StatelessWidget {
                     'Kindly do not share your login details outside your family. Instead ask them to become a member and support PSchool.',
                     style: TextStyle(color: Colors.white)),
               ),
-              const SizedBox(height: 20),
+              */
+                const SizedBox(height: 20),
               Usage(),
               Settings(),
               TextButton(

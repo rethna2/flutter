@@ -10,7 +10,7 @@ import './nativeActWrap.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:just_audio/just_audio.dart';
 import 'comps/AskToSubscribe.dart';
-import 'comps/CollectInfo.dart';
+//import 'comps/CollectInfo.dart';
 import '../utils/vars.dart';
 
 class ActivityPageArgs {
@@ -222,6 +222,7 @@ class ActivityViewState extends State<ActivityView> {
           appBar: MyAppBar(), body: Container(child: Text('Loading....')));
     }
     */
+    /*
     if (_updateResponse == 'collectInfo') {
       return CollectInfo(onClose: () {
         Navigator.popAndPushNamed(context, '/playlist',
@@ -231,7 +232,7 @@ class ActivityViewState extends State<ActivityView> {
                 paidUser: true));
       });
     }
-
+    */
     if (_updateResponse == 'askToSubscribe' && _args != null) {
       return AskToSubscribe(onClose: () {
         if (_args != null) {

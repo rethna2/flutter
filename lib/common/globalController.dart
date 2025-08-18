@@ -60,7 +60,7 @@ class GlobalController with ChangeNotifier {
     notifyListeners();
 
     if (user.containsKey('tokenDate')) {
-      await updateSession();
+      // await updateSession();
     }
   }
 

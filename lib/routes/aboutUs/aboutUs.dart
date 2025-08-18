@@ -45,11 +45,6 @@ class AboutUs extends StatelessWidget {
                     style: paraStyle)),
             Padding(
                 padding: EdgeInsets.all(15),
-                child: Text(
-                    "If you like our app, support us by paying a nominal fee of ₹ 500 per year. By becoming a member, you get access to all locked content present in all classes and subjects. ",
-                    style: paraStyle)),
-            Padding(
-                padding: EdgeInsets.all(15),
                 child: RichText(
                     text: TextSpan(style: paraStyle, children: [
                   TextSpan(

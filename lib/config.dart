@@ -1,17 +1,18 @@
 /*
-  String showcaseFile = 'assets/playlists/tamil.pschool';
-  const appName = "Tamil";
-  const config = {
-    'appBarTitle': 'பழகுதமிழ்',
-    'freeApp': true,
-    'allPlaylistId': 'tamil-more',
-    'appId': 'app.pschool.tamil'
-  };
+const config = {
+  'showcaseFile': 'assets/playlists/tamil.pschool',
+  'appName': "Tamil",
+  'appBarTitle': 'பழகுதமிழ்',
+  'freeApp': true,
+  'allPlaylistId': 'tamil-more',
+  'appId': 'app.pschool.tamil'
+};
 */
+
 /*
-  String showcaseFile = 'assets/playlists/hindi.pschool';
-  const appName = "Hindi";
   const config = {
+   'showcaseFile': 'assets/playlists/hindi.pschool',
+  'appName': "Hindi",
     'appBarTitle': 'PSchool Hindi',
     'freeApp': true,
     'allPlaylistId': 'hindi-more',
@@ -20,16 +21,17 @@
 */
 
 /*
-  String showcaseFile = 'assets/playlists/marathi.pschool';
-  const appName = "Marathi";
   const config = {
+    'showcaseFile': 'assets/playlists/marathi.pschool',
+    'appName': "Marathi",
     'appBarTitle': 'PSchool Marathi',
     'freeApp': true,
     'allPlaylistId': 'marathi-more',
     'appId': 'app.pschool.marathi'
   };
   */
-/*
+
+
 const config = {
   'showcaseFile': 'assets/playlists/pschool.pschool',
   'appBarTitle': 'PSchool',
@@ -38,8 +40,8 @@ const config = {
   'appId': 'com.gotowisdom.pschool',
   'appName': "PSchool"
 };
-*/
 
+/*
 const config = {
   'showcaseFile': 'assets/playlists/maths-sc.pschool',
   'appBarTitle': 'PSchool Math',
@@ -48,11 +50,12 @@ const config = {
   'appName': "PSchool",
   'appId': 'app.pschool.math'
 };
+*/
 
 /*
-  String showcaseFile = 'assets/playlists/malayalam.pschool';
-  const appName = "Malayalam";
   const config = {
+   'showcaseFile': 'assets/playlists/malayalam.pschool',
+    'appName': "Malayalam",
     'appBarTitle': 'PSchool Malayalam',
     'freeApp': true,
     'allPlaylistId': 'malayalam-more',
@@ -60,9 +63,9 @@ const config = {
   };
 */
 /*
-  String showcaseFile = 'assets/playlists/bengali.pschool';
-  const appName = "Bengali";
   const config = {
+   'showcaseFile': 'assets/playlists/bengali.pschool',
+    'appName': "Bengali",
     'appBarTitle': 'PSchool Bengali',
     'freeApp': true,
     'allPlaylistId': 'bengali-more',

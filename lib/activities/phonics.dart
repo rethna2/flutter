@@ -57,9 +57,10 @@ class _PhonicsState extends State<Phonics> with TickerProviderStateMixin {
     String str = widget.data['text'];
     String temp = '';
     String mainAudio = '';
+    print('lang =  ${widget.data['lang']}');
     if (widget.data['lang'] == 'ta') {
       temp = taUnits;
-      mainAudio = 'ta/ta-all-letters.aac';
+      mainAudio = 'ta/ta-all-letters.mp3';
     } else {
       temp = enUnits;
       if (widget.data['audio'] != null) {
@@ -161,10 +162,21 @@ class _PhonicsState extends State<Phonics> with TickerProviderStateMixin {
         }
       }
       int offset = audioOffset + index * audioWidth;
+      print('audioOffset $audioWidth, $offset');
+
       await player.setClip(
           start: Duration(seconds: offset), // + ),
           end: Duration(seconds: offset + audioWidth));
       await player.play();
+
+      /*
+      await player.seek(Duration(seconds: offset));
+      await Future.delayed(const Duration(milliseconds: 100));
+      print('player ${player.position}');
+      player.play();
+      await Future.delayed(const Duration(milliseconds: 900));
+      await player.stop();
+      */
     } catch (e) {
       print("Error : setClip : $e");
       await player.pause();
@@ -187,6 +199,7 @@ class _PhonicsState extends State<Phonics> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    print('build');
     int counter = 0;
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,

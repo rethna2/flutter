@@ -10,12 +10,12 @@ import 'routes/activityView.dart';
 import 'routes/playlistView.dart';
 import 'routes/allPlaylistsView.dart';
 
-//import 'routes/aboutUs/aboutUsTamil.dart';
+import 'routes/aboutUs/aboutUsTamil.dart';
 //import 'routes/aboutUs/aboutUs.dart';
-import 'routes/aboutUs/aboutUsMath.dart';
+//import 'routes/aboutUs/aboutUsMath.dart';
 
-/*
 import 'routes/member/member.dart';
+/*
 import 'routes/askToSubscribe.dart';
 */
 import 'common/theme.dart';
@@ -70,15 +70,14 @@ Future<void> main() async {
                 case '/allPlaylists':
                   return const AllPlaylistsView();
                 case '/about':
-                  // return const AboutUs(appName: appName);
-                  return AboutUs();
+                  return AboutUs(appName: config['appName'] as String);
+                // return AboutUs();
                 /*
                 case '/asktosubscribe':
                   return AskToSubscribe();
+                   */
                 case '/member':
-                default:
                   return MemberPage();
-                  */
                 default:
                   return IconListView(data: data as Map);
               }
