@@ -61,8 +61,8 @@ samples, guidance on mobile development, and a full API reference.
 ## Assets of PSchool Main app
 
 ```
- assets:
-     - assets/
+assets:
+    - assets/
     - assets/icons/
     - assets/playlists/
     - assets/stockimg/
@@ -103,7 +103,7 @@ samples, guidance on mobile development, and a full API reference.
     - webNextjs/_next/static/chunks/pages/
     - webNextjs/_next/static/chunks/pages/posts/
     - webNextjs/_next/static/chunks/pages/acts/
-    - webNextjs/_next/static/4wrhdhV-GjRbgcMdaQ_cv/
+    - webNextjs/_next/static/gLHTh-UisMAiy3D17LJ57/
 ```
 
 # Assets for the Math app
@@ -132,7 +132,6 @@ assets:
     - webNextjs/_next/static/pyKKeS_EDIf0tPWwruYSk/
 ```
 
-
 # Assets for PalaguTamil
 
 ```
@@ -144,6 +143,101 @@ assets:
     - assets/sound/ta/
     - assets/img/dragDrop/
     - assets/img/story/
+    - assets/img/story/crow/
+    - assets/img/science/
+    - assets/img/science/healthy-eating-habits/
+    - assets/img/science/mango-story/
+    - webNextjs/
+    - webNextjs/acts/
+    - webNextjs/_next/static/media/
+    - webNextjs/_next/static/css/
+    - webNextjs/_next/static/chunks/
+    - webNextjs/_next/static/chunks/pages/
+    - webNextjs/_next/static/chunks/pages/acts/
+    - webNextjs/_next/static/gLHTh-UisMAiy3D17LJ57/
+```
+
+# Assets for Bengali
+
+```
+  assets:
+    - assets/
+    - assets/icons/
+    - assets/playlists/
+    - assets/stockimg/
+    - assets/sound/bn/
+    - assets/img/dragDrop/
+    - assets/img/story/
+    - webNextjs/
+    - webNextjs/acts/
+    - webNextjs/_next/static/media/
+    - webNextjs/_next/static/css/
+    - webNextjs/_next/static/chunks/
+    - webNextjs/_next/static/chunks/pages/
+    - webNextjs/_next/static/chunks/pages/acts/
+    - webNextjs/_next/static/gLHTh-UisMAiy3D17LJ57/
+```
+
+# Assets for Hindi
+
+```
+  assets:
+    - assets/
+    - assets/icons/
+    - assets/playlists/
+    - assets/stockimg/
+    - assets/sound/hi/
+    - assets/img/dragDrop/
+    - assets/img/story/
+    - assets/img/story/crow/
+    - assets/img/math/dataHandling/
+    - assets/img/science/
+    - assets/img/science/healthy-eating-habits/
+    - assets/img/science/mango-story/
+    - webNextjs/
+    - webNextjs/acts/
+    - webNextjs/_next/static/media/
+    - webNextjs/_next/static/css/
+    - webNextjs/_next/static/chunks/
+    - webNextjs/_next/static/chunks/pages/
+    - webNextjs/_next/static/chunks/pages/acts/
+    - webNextjs/_next/static/gLHTh-UisMAiy3D17LJ57/
+```
+
+# Assets for Malayalam
+
+```
+  assets:
+    - assets/
+    - assets/icons/
+    - assets/playlists/
+    - assets/stockimg/
+    - assets/sound/ml/
+    - assets/img/dragDrop/
+    - assets/img/story/
+    - assets/img/science/
+    - assets/img/science/healthy-eating-habits/
+    - assets/img/science/mango-story/
+    - webNextjs/
+    - webNextjs/acts/
+    - webNextjs/_next/static/media/
+    - webNextjs/_next/static/css/
+    - webNextjs/_next/static/chunks/
+    - webNextjs/_next/static/chunks/pages/
+    - webNextjs/_next/static/chunks/pages/acts/
+    - webNextjs/_next/static/gLHTh-UisMAiy3D17LJ57/
+```
+
+# Assets for Marathi
+
+```
+  assets:
+    - assets/
+    - assets/icons/
+    - assets/playlists/
+    - assets/stockimg/
+    - assets/sound/mr/
+    - assets/img/dragDrop/
     - assets/img/story/crow/
     - assets/img/science/
     - assets/img/science/healthy-eating-habits/

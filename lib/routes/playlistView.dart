@@ -117,8 +117,12 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
             if (args.isBack != true) {
               // await Future.delayed(const Duration(milliseconds: 1000));
               Navigator.pushReplacementNamed(context, '/activity',
-                  arguments: ActivityPageArgs(payload, args.id,
-                      '${actData['id']}_${(nextIndex)}', count));
+                  arguments: ActivityPageArgs(
+                      payload,
+                      args.id,
+                      '${actData['id']}_${(nextIndex)}',
+                      count,
+                      args.prevRoute));
               /*
               Navigator.popAndPushNamed(context, '/activity',
                   arguments: ActivityPageArgs(
@@ -143,7 +147,8 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
   Future<bool> _onWillPop(args) async {
     print('args.prevRoute = ${args.prevRoute}');
     if (args.prevRoute == 'menu') {
-      return true;
+      Navigator.popAndPushNamed(context, '/');
+      return false;
     }
 
     Navigator.popAndPushNamed(context, '/allPlaylists',
@@ -279,14 +284,16 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
                                           payload,
                                           _data["id"],
                                           _items[i]['id'],
-                                          _actsCount));
+                                          _actsCount,
+                                          args.prevRoute));
                                 } else {
                                   Navigator.pushNamed(context, '/activity',
                                       arguments: ActivityPageArgs(
                                           payload,
                                           _data["id"],
                                           _items[i]['id'],
-                                          _actsCount));
+                                          _actsCount,
+                                          args.prevRoute));
                                 }
 
                                 ;
@@ -407,12 +414,20 @@ class _ReadPlaylistJsonState extends State<PlaylistView> with RouteAware {
             if (args.lastAct != null) {
               //  Navigator.pushReplacementNamed(context, '/activity',
               Navigator.pushNamed(context, '/activity',
-                  arguments: ActivityPageArgs(data, playlistId,
-                      '${item['id']}_${(pos + 1)}', _actsCount));
+                  arguments: ActivityPageArgs(
+                      data,
+                      playlistId,
+                      '${item['id']}_${(pos + 1)}',
+                      _actsCount,
+                      args.prevRoute));
             } else {
               Navigator.pushNamed(context, '/activity',
-                  arguments: ActivityPageArgs(data, playlistId,
-                      '${item['id']}_${(pos + 1)}', _actsCount));
+                  arguments: ActivityPageArgs(
+                      data,
+                      playlistId,
+                      '${item['id']}_${(pos + 1)}',
+                      _actsCount,
+                      args.prevRoute));
             }
           },
           style: ElevatedButton.styleFrom(

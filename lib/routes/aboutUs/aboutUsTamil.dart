@@ -75,7 +75,7 @@ class AboutUs extends StatelessWidget {
                     text: TextSpan(style: paraStyle, children: [
                   TextSpan(
                       text:
-                          'If you want to make a small donation for the cause of FREE education resources, please check our '),
+                          'If you like our work, please consider making a small donation through our '),
                   TextSpan(
                     text: 'Donate Us Page.',
                     style: new TextStyle(color: Colors.blue),

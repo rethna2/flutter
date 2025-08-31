@@ -18,7 +18,9 @@ class ActivityPageArgs {
   final String playlistId;
   final String activityId;
   final num actsCount;
-  ActivityPageArgs(this.data, this.playlistId, this.activityId, this.actsCount);
+  String? prevRoute;
+  ActivityPageArgs(this.data, this.playlistId, this.activityId, this.actsCount,
+      this.prevRoute);
 }
 
 class ActivityView extends StatefulWidget {
@@ -116,6 +118,7 @@ class ActivityViewState extends State<ActivityView> {
               id: args.playlistId,
               lastAct: args.activityId,
               paidUser: true,
+              prevRoute: args.prevRoute,
               isBack: true));
       print('Error in loading! - 1');
       return;
@@ -160,6 +163,7 @@ class ActivityViewState extends State<ActivityView> {
             arguments: RouteArgs(
                 id: args.playlistId,
                 lastAct: args.activityId,
+                prevRoute: args.prevRoute,
                 paidUser: controller.user['paidUser']));
       }
     }
@@ -205,6 +209,7 @@ class ActivityViewState extends State<ActivityView> {
             id: args.playlistId,
             lastAct: args.activityId,
             paidUser: true,
+            prevRoute: args.prevRoute,
             isBack: true));
     return false; //<-- SEE HERE
   }
@@ -240,6 +245,7 @@ class ActivityViewState extends State<ActivityView> {
               arguments: RouteArgs(
                   id: _args?.playlistId ?? '',
                   lastAct: _args?.activityId,
+                  prevRoute: args.prevRoute,
                   paidUser: false));
         }
       });
@@ -299,6 +305,7 @@ class ActivityViewState extends State<ActivityView> {
                                         id: args.playlistId,
                                         lastAct: args.activityId,
                                         paidUser: true,
+                                        prevRoute: args.prevRoute,
                                         isBack: true));
                               },
                               onProgress: (int progress) {
@@ -317,6 +324,7 @@ class ActivityViewState extends State<ActivityView> {
                                             id: args.playlistId,
                                             lastAct: args.activityId,
                                             paidUser: true,
+                                            prevRoute: args.prevRoute,
                                             isBack: true));
                                     print('Error in loading! - 2');
                                   }

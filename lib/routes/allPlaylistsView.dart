@@ -371,7 +371,7 @@ class _AllPlaylistsViewState extends State<AllPlaylistsView> {
                                                                     Expanded(
                                                                         child: InkWell(
                                                                             onTap: () {
-                                                                              Navigator.pushNamed(context, '/playlist', arguments: RouteArgs(id: item["id"], prevRoute: 'menu'));
+                                                                              Navigator.pushNamed(context, '/playlist', arguments: RouteArgs(id: item["id"], prevRoute: 'menu2'));
                                                                             },
                                                                             child: Container(
                                                                               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 0),
