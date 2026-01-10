@@ -20,6 +20,7 @@ const config = {
 };
 */
 
+/*
 const config = {
   'showcaseFile': 'assets/playlists/marathi.pschool',
   'appName': "Marathi",
@@ -28,9 +29,8 @@ const config = {
   'allPlaylistId': 'marathi-more',
   'appId': 'app.pschool.marathi'
 };
+*/
 
-
-/*
 const config = {
   'showcaseFile': 'assets/playlists/pschool.pschool',
   'appBarTitle': 'PSchool',
@@ -39,7 +39,7 @@ const config = {
   'appId': 'com.gotowisdom.pschool',
   'appName': "PSchool"
 };
-*/
+
 /*
 const config = {
   'showcaseFile': 'assets/playlists/maths-sc.pschool',

@@ -26,7 +26,9 @@ class Social extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(0, 40, 0, 20),
         child: Column(children: [
           const Divider(color: Colors.grey),
-          Text('Follow Us'),
+          const Padding(
+              padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
+              child: Text('Follow Us')),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [

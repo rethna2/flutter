@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/gestures.dart';
 //import 'comps/MainMenu.dart';
 import '../comps/MyAppBar.dart';
+import '../comps/sponsor2.dart';
 
 class AboutUs extends StatelessWidget {
   const AboutUs({Key? key, required this.appName}) : super(key: key);
@@ -10,9 +11,11 @@ class AboutUs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String appName2 = appName;
+    if (appName2 == 'PSchool') appName2 = "";
     TextStyle paraStyle =
         const TextStyle(height: 1.5, fontSize: 18, color: Colors.black);
-    return new Scaffold(
+    return Scaffold(
         appBar: MyAppBar(),
         body: Container(
             child: SingleChildScrollView(
@@ -26,7 +29,7 @@ class AboutUs extends StatelessWidget {
             Padding(
               padding: EdgeInsets.all(15),
               child: Text(
-                  'This $appName app is part of PSchool Learning Apps. We provide FREE learning apps for all academic subjects like Maths, English, Science etc.',
+                  'This $appName2 app is part of PSchool Learning Apps. We provide FREE learning apps for all academic subjects like Maths, English, Science etc.',
                   style: paraStyle),
             ),
             Padding(
@@ -103,6 +106,7 @@ class AboutUs extends StatelessWidget {
                       },
                   )
                 ]))),
+            const Sponsor2(),
             const SizedBox(height: 40)
           ],
         ))));

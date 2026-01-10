@@ -53,9 +53,9 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         //applicationId "app.pschool.tamil"
        //applicationId "app.pschool.hindi"
-       //applicationId "com.gotowisdom.pschool"
+       applicationId "com.gotowisdom.pschool"
        //applicationId "app.pschool.math"
-        applicationId "app.pschool.marathi"
+       // applicationId "app.pschool.marathi"
         //applicationId "app.pschool.malayalam"
        //applicationId "app.pschool.bengali"
         // You can update the following values to match your application needs.

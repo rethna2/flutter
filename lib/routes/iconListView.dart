@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'comps/MyAppBar.dart';
 import '../common/globalController.dart';
 import './comps/social.dart';
+import './comps/sponsor.dart';
 import '../utils/vars.dart';
 
 /*
@@ -160,17 +161,36 @@ class IconListView extends StatelessWidget {
                                     ])))))
                         .toList()),
                 if (data['moreActivities'] != null)
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/allPlaylists',
-                            arguments: RouteArgs(id: data['moreActivities']));
-                      },
-                      child: const Text("More Activities",
-                          style: TextStyle(fontSize: 24)),
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purple,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 60, vertical: 15))),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: new Color(
+                          0xffbcdbf7), // Color must be inside BoxDecoration
+                      borderRadius: BorderRadius.circular(
+                          10), // Applies a 10px radius to all corners
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10.0, vertical: 20.0),
+                    child: Row(children: [
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/allPlaylists',
+                                arguments:
+                                    RouteArgs(id: data['moreActivities']));
+                          },
+                          child: const Text("More Activities",
+                              style: TextStyle(fontSize: 24)),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: new Color(0xff4fa7f7),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 15, vertical: 15))),
+                      const Expanded(
+                          child: Padding(
+                              padding: EdgeInsets.only(left: 20.0),
+                              child: Text(
+                                  'Choose content based on class & subject')))
+                    ]),
+                  ),
+                const Sponsor(),
                 const Social()
               ]));
         }))));

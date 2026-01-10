@@ -102,10 +102,12 @@ class _MainMenu extends StatelessWidget {
         } else {
           return {
             'Home Page',
-            'Member',
-            'Donate Us',
+            'All Playlists',
+            // 'Member',
             'About Us',
-            'All Playlists' /*, 'Test'*/
+            'Donate Us',
+
+            /*, 'Test'*/
           }.map((String choice) {
             return PopupMenuItem<String>(
               value: choice,
